@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+from mvf1.cmdline import cli
+
+if __name__ == '__main__':
+    cli()
