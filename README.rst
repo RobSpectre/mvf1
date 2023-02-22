@@ -5,7 +5,9 @@ mvf1
 A Python package and command line interface to control video players for
 `MultiViewer For F1`_, the best way to watch Formula 1.
 
+
 ** Table of Contents **
+
 
 .. contents::
     :local:
