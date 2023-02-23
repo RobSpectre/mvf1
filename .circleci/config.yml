@@ -36,8 +36,9 @@ jobs:
       - run:
           name: Install dependencies 
           command: pip install -r requirements.txt 
-      - run: Add testing tools
-          name: pip install pytest pytest-cov pytest-flake8 codecov
+      - run:
+          name: Add testing tools
+          command: pip install pytest pytest-cov pytest-flake8 codecov
       - run:
           name: Run tests
           # This assumes pytest is installed via the install-package step above
@@ -64,8 +65,9 @@ jobs:
       - run:
           name: Install dependencies 
           command: pip install -r requirements.txt 
-      - run: Add testing tools
-          name: pip install pytest pytest-cov pytest-flake8 codecov
+      - run:
+          name: Add testing tools
+          command: pip install pytest pytest-cov pytest-flake8 codecov
       - run:
           name: Run tests
           # This assumes pytest is installed via the install-package step above
@@ -92,8 +94,9 @@ jobs:
       - run:
           name: Install dependencies 
           command: pip install -r requirements.txt 
-      - run: Add testing tools
-          name: pip install pytest pytest-cov pytest-flake8 codecov
+      - run:
+          name: Add testing tools
+          command: pip install pytest pytest-cov pytest-flake8 codecov
       - run:
           name: Run tests
           # This assumes pytest is installed via the install-package step above
@@ -120,8 +123,9 @@ jobs:
       - run:
           name: Install dependencies 
           command: pip install -r requirements.txt 
-      - run: Add testing tools
-          name: pip install pytest pytest-cov pytest-flake8 codecov
+      - run:
+          name: Add testing tools
+          command: pip install pytest pytest-cov pytest-flake8 codecov
       - run:
           name: Run tests
           # This assumes pytest is installed via the install-package step above
@@ -148,8 +152,9 @@ jobs:
       - run:
           name: Install dependencies 
           command: pip install -r requirements.txt 
-      - run: Add testing tools
-          name: pip install pytest pytest-cov pytest-flake8 codecov
+      - run:
+          name: Add testing tools
+          command: pip install pytest pytest-cov pytest-flake8 codecov
       - run:
           name: Run tests
           # This assumes pytest is installed via the install-package step above
@@ -176,8 +181,9 @@ jobs:
       - run:
           name: Install dependencies 
           command: pip install -r requirements.txt 
-      - run: Add testing tools
-          name: pip install pytest pytest-cov pytest-flake8 codecov
+      - run:
+          name: Add testing tools
+          command: pip install pytest pytest-cov pytest-flake8 codecov
       - run:
           name: Run tests
           # This assumes pytest is installed via the install-package step above
