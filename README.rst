@@ -104,6 +104,7 @@ Switch stream of player to data channel
 Synchronize all players to specific player
 
 .. code-block:: python
+
     >>> from mvf1 import MultiViewerForF1
     >>> remote = MultiViewerForF1()
     >>> player = remote.player(6)
@@ -113,6 +114,7 @@ Synchronize all players to specific player
 Synchornize all players to player streaming broadcast commentary
 
 .. code-block:: python
+
     >>> from mvf1 import MultiViewerForF1
     >>> remote = MultiViewerForF1()
     >>> remote.player_sync_to_commentary()
