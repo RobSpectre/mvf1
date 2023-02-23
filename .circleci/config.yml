@@ -34,9 +34,6 @@ jobs:
           # app-dir: ~/project/package-directory/  # If you're requirements.txt isn't in the root directory.
           # pip-dependency-file: test-requirements.txt  # if you have a different name for your requirements file, maybe one that combines your runtime and test requirements.
       - run:
-          name: Install tox
-          command: pip install tox tox-pyenv
-      - run:
           name: Run tests
           # This assumes pytest is installed via the install-package step above
           command: tox 
@@ -48,3 +45,8 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - build-and-test
+
+dependencies:
+  override:
+    - pip install tox tox-pyenv
+    - pyenv local 3.7 3.8 3.9 310 311  
