@@ -6,7 +6,8 @@ A Python package and command line interface to control video players for
 `MultiViewer For F1`_, the best way to watch Formula 1.
 
 
-** Table of Contents **
+Table of Contents
+=================
 
 
 .. contents::
@@ -18,11 +19,11 @@ A Python package and command line interface to control video players for
 Features
 ===============
 
-* Command line interface for controlling MultiViewer For F1. Useful for
+* Command line interface for controlling `MultiViewer For F1`_. Useful for
   integrations with control interfaces like `StreamDeck`_
 * Pythonic interface for controlling `MultiViewer For F1`_. No GraphQL needed!
 * `Type hints`_
-* TODO: Full documentation
+* Full documentation
 * TODO: Test coverage
 * `black`_ Praise the Dark Lord
 
@@ -37,17 +38,75 @@ The latest version can be installed via `pip`_.
    $ pip install mvf1
 
 
-Usage
+Quickstart
 ================
 
 Command Line
 ----------------
-TODO
 
+.. code-block:: bash
+
+    $ mvf1-cli --help
 
 Library
 ----------------
-TODO
+
+Displaying all players
+
+.. code-block:: python
+
+    >>> from mvf1 import MultiViewerForF1
+    >>> remote = MultiViewerForF1()
+    >>> remote.players
+    [6: INTERNATIONAL, 7: PER]
+
+Pause all players
+
+.. code-block:: python
+
+    >>> from mvf1 import MultiViewerForF1
+    >>> remote = MultiViewerForF1()
+    >>> for player in remote.players:
+    >>>     player.mute()
+    {'data': {'playerSetMuted': True}}
+    {'data': {'playerSetMuted': True}}
+
+Retrieve specific player
+
+.. code-block:: python
+
+    >>> from mvf1 import MultiViewerForF1
+    >>> remote = MultiViewerForF1()
+    >>> player = remote.player(6)
+    >>> player.state
+    {'ts': 1677168293.21, 'paused': False, 'muted': True, 'volume': 100, 'live': False, 'currentTime': 10.002025, 'interpolatedCurrentTime': 363.656025}
+
+Switch stream of player to data channel
+
+.. code-block:: python
+
+    >>> from mvf1 import MultiViewerForF1
+    >>> remote = MultiViewerForF1()
+    >>> player = remote.player(6)
+    >>> player.switch_stream('DATA')
+    {'data': {'playerCreate': '12'}}
+
+Synchronize all players to specific player
+
+..code-block:: python
+    >>> from mvf1 import MultiViewerForF1
+    >>> remote = MultiViewerForF1()
+    >>> player = remote.player(6)
+    >>> player.sync()
+    {'data': {'playerSync': True}}
+
+Synchornize all players to player streaming broadcast commentary
+
+..code-block:: python
+    >>> from mvf1 import MultiViewerForF1
+    >>> remote = MultiViewerForF1()
+    >>> remote.player_sync_to_commentary()
+    {'data': {'playerSync': True}}
 
 
 Development
@@ -89,6 +148,7 @@ Meta
   `Formula 1 TV`.
 * Shout out to the excellent `MultiViewer For F1`_ team! This app absolutely
   changed how I enjoy Formula 1.
+* 🏎️ ¡Vamos Checo! 🏎️
 
 
 .. _MultiViewer for F1: https://multiviewer.app/

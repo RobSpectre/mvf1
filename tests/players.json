@@ -1,0 +1,72 @@
+{
+  "data": {
+    "players": [
+      {
+        "id": "3",
+        "type": "ADDITIONAL",
+        "state": {
+          "ts": 1677179525.849,
+          "paused": false,
+          "muted": true,
+          "volume": 100,
+          "live": false,
+          "currentTime": 10,
+          "interpolatedCurrentTime": 99.424
+        },
+        "driverData": null,
+        "streamData": {
+          "contentId": "1000001067",
+          "meetingKey": "1006",
+          "sessionKey": "5442",
+          "channelId": 1025,
+          "title": "INTERNATIONAL"
+        },
+        "bounds": {
+          "x": 60,
+          "y": 86,
+          "width": 720,
+          "height": 407
+        },
+        "fullscreen": false,
+        "alwaysOnTop": false,
+        "maintainAspectRatio": true
+      },
+      {
+        "id": "4",
+        "type": "OBC",
+        "state": {
+          "ts": 1677179527.902,
+          "paused": false,
+          "muted": true,
+          "volume": 100,
+          "live": false,
+          "currentTime": 2.3,
+          "interpolatedCurrentTime": 89.67099999999999
+        },
+        "driverData": {
+          "driverNumber": 5,
+          "tla": "VET",
+          "firstName": "Sebastian",
+          "lastName": "Vettel",
+          "teamName": "Ferrari"
+        },
+        "streamData": {
+          "contentId": "1000001067",
+          "meetingKey": "1006",
+          "sessionKey": "5442",
+          "channelId": 4171,
+          "title": "VET"
+        },
+        "bounds": {
+          "x": 55,
+          "y": 529,
+          "width": 721,
+          "height": 407
+        },
+        "fullscreen": false,
+        "alwaysOnTop": false,
+        "maintainAspectRatio": true
+      }
+    ]
+  }
+}

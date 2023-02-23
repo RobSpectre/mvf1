@@ -27,68 +27,6 @@ class MultiViewerForF1(object):
     endpoint: HTTPEndpoint
         GraphQL API Endpoint of MultiViewerForF1.
 
-    Methods
-    -------
-    perform_operation(self, operation)
-        Performs the GraphQL operation.
-
-    live_timing_clock(self)
-        Returns the time for an event when it is live.
-
-    live_timing_state(self)
-        Returns state of live timing at current time.
-
-    players(self)
-        Returns a list of active MultiViewerForF1 players.
-
-    system_info(self)
-        Returns the system information.
-
-    version(self)
-        Returns the MultiViewerForF1 version.
-
-    player(self, id)
-        Returns the player with specific id.
-
-    player_create(self, content_id, channel_id, driver_tla=None,
-                  driver_number=None, stream_title=None, x=None,
-                  y=None, width=None, height=None,
-                  fullscreen=False, always_on_top=False,
-                  maintain_aspect_ratio=True)
-        Creates a new player.
-
-    player_delete(self, id)
-        Deletes a player.
-
-    player_seek_to(self, id, absolute=None, relative=None)
-        Seeks player to an absolute or relative position.
-
-    player_set_bounds(self, id, x=None, y=None, width=None, height=None)
-        Sets the bounds to a player with position of top left corner and
-        dimensions of the window.
-
-    player_set_volume(self, id, volume)
-        Sets the volume of a player.
-
-    player_set_paused(self, id, paused=None)
-        Pauses/unpauses player or specifies pause state for player.
-
-    player_set_fullscreen(self, id, fullscreen=None)
-        Toggles fullscreen for a player or specifies fullscreen state for
-        player.
-
-    player_set_muted(self, id, muted=None)
-        Mutes/unmutes player or specifies muted state for player.
-
-    player_set_speedometer_visibility(self, id, visible=None)
-        Makes speedometer overlay on player visible/invisible or specifies
-        visibility.
-
-    player_sync(self, id)
-        Syncs all players to the timestamp of specified player.
-
-    player_sync_to_commentary(self)
-        Syncs all players to the player with a broadcast commentary stream.
     """
     def __init__(self, uri='http://localhost:10101/api/graphql'):
         self.endpoint = HTTPEndpoint(uri)
@@ -109,8 +47,8 @@ class MultiViewerForF1(object):
 
         """
         response = self.endpoint(operation)
-        
-        if "errors" in response: 
+
+        if "errors" in response:
             error = response['errors'][0]
             raise MultiViewerForF1Error(f"{error['message']}")
         else:
@@ -183,7 +121,7 @@ class MultiViewerForF1(object):
 
         """
         operation = Operation(schema.Query)
-        operation.system_info
+        operation.system_info()
 
         return self.perform_operation(operation)
 
@@ -236,16 +174,16 @@ class MultiViewerForF1(object):
                       height: Optional[int] = None,
                       fullscreen: Optional[bool] = False,
                       always_on_top: Optional[bool] = False,
-                      maintain_aspect_ratio: Optional[bool] = True) -> dict:
+                      maintain_aspect_ratio: Optional[bool] = True) -> 'Player':
         """
         Creates a new player.
 
         Parameters
         ----------
-        content_id: int 
+        content_id: int
             Content Id.
 
-        channel_id: int 
+        channel_id: int
             Channel Id.
 
         driver_tla: str, optional
@@ -280,8 +218,8 @@ class MultiViewerForF1(object):
 
         Returns
         -------
-        dict
-            Player information.
+        Player
+            Player object
 
         """
         operation = Operation(schema.Mutation)
@@ -293,7 +231,7 @@ class MultiViewerForF1(object):
                                     height=height)
         else:
             bounds = None
-        
+
         player = PlayerCreateInput(content_id=content_id,
                                    channel_id=channel_id,
                                    driver_tla=driver_tla,
@@ -306,7 +244,9 @@ class MultiViewerForF1(object):
 
         operation.player_create(input=player)
 
-        return self.perform_operation(operation)
+        player_data = self.perform_operation(operation)
+
+        return self.player(player_data['data']['playerCreate'])
 
     def player_delete(self, id: int) -> dict:
         """
@@ -363,42 +303,42 @@ class MultiViewerForF1(object):
                           y: Optional[int] = None,
                           width: Optional[int] = None,
                           height: Optional[int] = None) -> dict:
-            """
-            Set the bounds of a player.
+        """
+        Set the bounds of a player.
 
-            Parameters
-            ----------
-            id: int 
-                Id of player.
+        Parameters
+        ----------
+        id: int
+            Id of player.
 
-            x: int, optional
-                X coordinate of player's top left corner.
+        x: int, optional
+            X coordinate of player's top left corner.
 
-            y: int, optional
-                Y coordinate of player's top left corner.
+        y: int, optional
+            Y coordinate of player's top left corner.
 
-            width: int, optional
-                Width of player.
+        width: int, optional
+            Width of player.
 
-            height: int, optional
-                Height of player.
+        height: int, optional
+            Height of player.
 
-            Returns
-            -------
-            dict
-                True if operation is successful.
+        Returns
+        -------
+        dict
+            True if operation is successful.
 
-            """
-            operation = Operation(schema.Mutation)
+        """
+        operation = Operation(schema.Mutation)
 
-            bounds = RectangleInput(x=x,
-                                    y=y,
-                                    width=width,
-                                    height=height)
+        bounds = RectangleInput(x=x,
+                                y=y,
+                                width=width,
+                                height=height)
 
-            operation.player_set_bounds(id=id, bounds=bounds)
+        operation.player_set_bounds(id=id, bounds=bounds)
 
-            return self.perform_operation(operation)
+        return self.perform_operation(operation)
 
     def player_set_volume(self,
                           id: int,
@@ -408,15 +348,15 @@ class MultiViewerForF1(object):
 
         Parameters
         ----------
-        id: int 
+        id: int
             Id of player.
 
-        volume: int 
+        volume: int
             Volume of player.
 
         Returns
         -------
-        dict 
+        dict
             True if operation is successful.
 
         """
@@ -433,7 +373,7 @@ class MultiViewerForF1(object):
 
         Parameters
         ----------
-        id: int 
+        id: int
             Id of player.
 
         paused: bool, optional
@@ -441,7 +381,7 @@ class MultiViewerForF1(object):
 
         Returns
         -------
-        dict 
+        dict
             True if operation is successful.
 
         """
@@ -459,7 +399,7 @@ class MultiViewerForF1(object):
 
         Parameters
         ----------
-        id: int 
+        id: int
             Id of player.
 
         fullscreen: bool, optional
@@ -467,7 +407,7 @@ class MultiViewerForF1(object):
 
         Returns
         -------
-        dict 
+        dict
             True if operation is successful.
 
         """
@@ -484,7 +424,7 @@ class MultiViewerForF1(object):
 
         Parameters
         ----------
-        id: int 
+        id: int
             Id of player.
 
         muted: bool, optional
@@ -492,7 +432,7 @@ class MultiViewerForF1(object):
 
         Returns
         -------
-        dict 
+        dict
             True if operation is successful.
 
         """
@@ -518,7 +458,7 @@ class MultiViewerForF1(object):
 
         Returns
         -------
-        dict 
+        dict
             True if operation is successful.
 
         """
@@ -533,12 +473,12 @@ class MultiViewerForF1(object):
 
         Parameters
         ----------
-        id: int 
+        id: int
             Id of player.
 
         Returns
         -------
-        dict 
+        dict
             True if operation is successful.
 
         """
@@ -553,16 +493,17 @@ class MultiViewerForF1(object):
 
         Returns
         -------
-        dict 
+        dict
             True if operation is successful.
 
         """
         for player in self.players:
             if player.stream_data['title'] == 'INTERNATIONAL' or \
-              player.stream_data['title'] == 'F1 LIVE':
+               player.stream_data['title'] == 'F1 LIVE':
                 return player.sync()
 
         return {'data': 'No player has commentary.'}
+
 
 class Player(object):
     """
@@ -570,7 +511,7 @@ class Player(object):
 
     Attributes
     ----------
-    id: int 
+    id: int
         Player Id.
     state: str
         Player state.
@@ -578,9 +519,9 @@ class Player(object):
         Player driver_data.
     stream_data: dict
         Player stream_data.
-    content_id: int 
+    content_id: int
         Player F1TV Content ID.
-    channel_id: int 
+    channel_id: int
         Player F1TV Channel ID.
     title: str
         Title of stream playing in player.
@@ -602,43 +543,6 @@ class Player(object):
         Does player maintain aspect ratio?
     remote: MultiViewerForF1
         Interface to control MultiViewerForF1.
-
-    Methods
-    -------
-    delete(self)
-        Delete this player.
-
-    seek_to(self, absolute=None, relative=None)
-        Seeks this player to an absolute or relative position.
-
-    set_bounds(self, x=None, y=None, width=None, height=None)
-        Sets the bounds of this player with position of top left corner and
-          dimensions of the window.
-
-    set_volume(self, volume)
-        Sets the volume of this player.
-
-    pause(self, paused=None)
-        Pauses/unpauses this player or specifies pause state for this player.
-
-    set_fullscreen(self, fullscreen=None)
-        Toggles fullscreen for this player or specifies fullscreen state for
-          this player.
-
-    mute(self, muted=None)
-        Mutes/unmutes this player or specifies muted state for this player.
-
-    set_speedometer_visibility(self, visible=None)
-        Makes speedometer overlay on this player visible/invisible or specifies
-          visibility.
-
-    sync(self)
-        Synchronize all players to the timestamp of this player.
-
-    switch_stream(self, title)
-        Switch this player's video stream to another feed (e.g. 'INTERNATIONAL'
-          or 'PER').
-
     """
 
     def __init__(self, player_dict: dict):
@@ -743,7 +647,7 @@ class Player(object):
 
         Parameters
         ----------
-        volume: int, optional 
+        volume: int, optional
             Desired volume of this player.
 
         Returns
@@ -847,7 +751,7 @@ class Player(object):
         """
         return self.remote.player_sync(self.id)
 
-    def switch_stream(self, title: str) -> dict:
+    def switch_stream(self, title: str) -> 'Player':
         """
         Switch stream of this player.
 
@@ -859,8 +763,8 @@ class Player(object):
 
         Returns
         -------
-        dict
-            Server response for new player created for new feed.
+        Player
+            Player object of player with new stream
 
 
         """
