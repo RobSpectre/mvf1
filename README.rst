@@ -5,6 +5,16 @@ mvf1
 A Python package and command line interface to control video players for
 `MultiViewer For F1`_, the best way to watch Formula 1.
 
+.. image:: https://dl.circleci.com/status-badge/img/gh/RobSpectre/mvf1/tree/main.svg?style=svg
+        :target: https://dl.circleci.com/status-badge/redirect/gh/RobSpectre/mvf1/tree/main
+
+.. image:: https://codecov.io/gh/RobSpectre/mvf1/branch/main/graph/badge.svg?token=L5N96KXN2V 
+ :target: https://codecov.io/gh/RobSpectre/mvf1
+
+.. image:: https://readthedocs.org/projects/mvf1/badge/?version=latest
+    :target: https://mvf1.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 
 Table of Contents
 =================
@@ -23,8 +33,8 @@ Features
   integrations with control interfaces like `StreamDeck`_
 * Pythonic interface for controlling `MultiViewer For F1`_. No GraphQL needed!
 * `Type hints`_
-* Full documentation
-* TODO: Test coverage
+* `Full documentation`_
+* `Test coverage`_
 * `black`_ Praise the Dark Lord
 
 
@@ -161,3 +171,5 @@ Meta
 .. _black: https://black.readthedocs.io/en/stable/
 .. _StreamDeck: https://www.elgato.com/en/welcome-to-stream-deck
 .. _type hints: https://docs.python.org/3/library/typing.html
+.. _Full documentation: https://mvf1.readthedocs.io/en/latest/
+.. _Test coverage: https://app.codecov.io/gh/RobSpectre/mvf1

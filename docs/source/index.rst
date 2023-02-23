@@ -19,8 +19,8 @@ Features
   integrations with control interfaces like `StreamDeck`_
 * Pythonic interface for controlling `MultiViewer For F1`_. No GraphQL needed!
 * `Type hints`_
-* TODO: Full documentation
-* TODO: Test coverage
+* `Full documentation`_
+* `Test coverage`_
 * `black`_ Praise the Dark Lord
 
 
@@ -168,3 +168,5 @@ Meta
 .. _black: https://black.readthedocs.io/en/stable/
 .. _StreamDeck: https://www.elgato.com/en/welcome-to-stream-deck
 .. _type hints: https://docs.python.org/3/library/typing.html
+.. _Full documentation: https://mvf1.readthedocs.io/en/latest/
+.. _Test coverage: https://app.codecov.io/gh/RobSpectre/mvf1
