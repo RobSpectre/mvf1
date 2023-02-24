@@ -16,6 +16,7 @@ setup_args = {
     "packages": ["mvf1", "tests"],
     "scripts": ["bin/mvf1-cli"],
     "include_package_data": True,
+    "install_requires": ["click", "sgqlc"],
     "classifiers": [
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
