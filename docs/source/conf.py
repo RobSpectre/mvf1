@@ -1,6 +1,8 @@
 import sys 
 import os
 
+sys.path.insert(0, os.path.abspath("../.."))
+
 from mvf1 import __version__
 # Configuration file for the Sphinx documentation builder.
 #
