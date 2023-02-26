@@ -28,7 +28,8 @@ class MultiViewerForF1(object):
         GraphQL API Endpoint of MultiViewerForF1.
 
     """
-    def __init__(self, uri='http://localhost:10101/api/graphql'):
+
+    def __init__(self, uri="http://localhost:10101/api/graphql"):
         self.endpoint = HTTPEndpoint(uri)
 
     def perform_operation(self, operation: Operation) -> dict:
@@ -49,7 +50,7 @@ class MultiViewerForF1(object):
         response = self.endpoint(operation)
 
         if "errors" in response:
-            error = response['errors'][0]
+            error = response["errors"][0]
             raise MultiViewerForF1Error(f"{error['message']}")
         else:
             return response
@@ -104,7 +105,7 @@ class MultiViewerForF1(object):
 
         players = []
 
-        for player_data in players_data['data']['players']:
+        for player_data in players_data["data"]["players"]:
             players.append(Player(player_data))
 
         return players
@@ -141,7 +142,7 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
-    def player(self, id: int) -> 'Player':
+    def player(self, id: int) -> "Player":
         """
         Returns the player with specific id.
 
@@ -160,21 +161,23 @@ class MultiViewerForF1(object):
         operation.player(id=id)
 
         player_data = self.perform_operation(operation)
-        return Player(player_data['data']['player'])
+        return Player(player_data["data"]["player"])
 
-    def player_create(self,
-                      content_id: int,
-                      channel_id: int,
-                      driver_tla: Optional[str] = None,
-                      driver_number: Optional[int] = None,
-                      stream_title: Optional[str] = None,
-                      x: Optional[int] = None,
-                      y: Optional[int] = None,
-                      width: Optional[int] = None,
-                      height: Optional[int] = None,
-                      fullscreen: Optional[bool] = False,
-                      always_on_top: Optional[bool] = False,
-                      maintain_aspect_ratio: Optional[bool] = True) -> 'Player':
+    def player_create(
+        self,
+        content_id: int,
+        channel_id: int,
+        driver_tla: Optional[str] = None,
+        driver_number: Optional[int] = None,
+        stream_title: Optional[str] = None,
+        x: Optional[int] = None,
+        y: Optional[int] = None,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        fullscreen: Optional[bool] = False,
+        always_on_top: Optional[bool] = False,
+        maintain_aspect_ratio: Optional[bool] = True,
+    ) -> "Player":
         """
         Creates a new player.
 
@@ -225,28 +228,27 @@ class MultiViewerForF1(object):
         operation = Operation(schema.Mutation)
 
         if x or y or width or height:
-            bounds = RectangleInput(x=x,
-                                    y=y,
-                                    width=width,
-                                    height=height)
+            bounds = RectangleInput(x=x, y=y, width=width, height=height)
         else:
             bounds = None
 
-        player = PlayerCreateInput(content_id=content_id,
-                                   channel_id=channel_id,
-                                   driver_tla=driver_tla,
-                                   driver_number=driver_number,
-                                   stream_title=stream_title,
-                                   bounds=bounds,
-                                   fullscreen=fullscreen,
-                                   always_on_top=always_on_top,
-                                   maintain_aspect_ratio=maintain_aspect_ratio)
+        player = PlayerCreateInput(
+            content_id=content_id,
+            channel_id=channel_id,
+            driver_tla=driver_tla,
+            driver_number=driver_number,
+            stream_title=stream_title,
+            bounds=bounds,
+            fullscreen=fullscreen,
+            always_on_top=always_on_top,
+            maintain_aspect_ratio=maintain_aspect_ratio,
+        )
 
         operation.player_create(input=player)
 
         player_data = self.perform_operation(operation)
 
-        return self.player(player_data['data']['playerCreate'])
+        return self.player(player_data["data"]["playerCreate"])
 
     def player_delete(self, id: int) -> dict:
         """
@@ -268,10 +270,9 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
-    def player_seek_to(self,
-                       id: int,
-                       absolute: Optional[int] = None,
-                       relative: Optional[int] = None) -> dict:
+    def player_seek_to(
+        self, id: int, absolute: Optional[int] = None, relative: Optional[int] = None
+    ) -> dict:
         """
         Seeks to a specific position.
 
@@ -297,12 +298,14 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
-    def player_set_bounds(self,
-                          id: int,
-                          x: Optional[int] = None,
-                          y: Optional[int] = None,
-                          width: Optional[int] = None,
-                          height: Optional[int] = None) -> dict:
+    def player_set_bounds(
+        self,
+        id: int,
+        x: Optional[int] = None,
+        y: Optional[int] = None,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+    ) -> dict:
         """
         Set the bounds of a player.
 
@@ -331,18 +334,13 @@ class MultiViewerForF1(object):
         """
         operation = Operation(schema.Mutation)
 
-        bounds = RectangleInput(x=x,
-                                y=y,
-                                width=width,
-                                height=height)
+        bounds = RectangleInput(x=x, y=y, width=width, height=height)
 
         operation.player_set_bounds(id=id, bounds=bounds)
 
         return self.perform_operation(operation)
 
-    def player_set_volume(self,
-                          id: int,
-                          volume: int) -> dict:
+    def player_set_volume(self, id: int, volume: int) -> dict:
         """
         Set the volume of a player.
 
@@ -365,9 +363,7 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
-    def player_set_paused(self,
-                          id: int,
-                          paused: Optional[bool] = None) -> dict:
+    def player_set_paused(self, id: int, paused: Optional[bool] = None) -> dict:
         """
         Pauses/unpauses player or specifies pause state for player.
 
@@ -390,9 +386,7 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
-    def player_set_fullscreen(self,
-                              id: int,
-                              fullscreen: Optional[bool] = None) -> dict:
+    def player_set_fullscreen(self, id: int, fullscreen: Optional[bool] = None) -> dict:
         """
         Toggles fullscreen for a player or specifies fullscreen state for
         player.
@@ -416,9 +410,7 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
-    def player_set_muted(self,
-                         id: int,
-                         muted: Optional[bool] = None) -> dict:
+    def player_set_muted(self, id: int, muted: Optional[bool] = None) -> dict:
         """
         Mutes/unmutes player or specifies muted state for player.
 
@@ -441,9 +433,9 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
-    def player_set_speedometer_visibility(self,
-                                          id: int,
-                                          visible: Optional[bool] = None) -> dict:
+    def player_set_speedometer_visibility(
+        self, id: int, visible: Optional[bool] = None
+    ) -> dict:
         """
         Makes speedometer overlay on player visible/invisible or specifies
         visibility.
@@ -498,11 +490,13 @@ class MultiViewerForF1(object):
 
         """
         for player in self.players:
-            if player.stream_data['title'] == 'INTERNATIONAL' or \
-               player.stream_data['title'] == 'F1 LIVE':
+            if (
+                player.stream_data["title"] == "INTERNATIONAL"
+                or player.stream_data["title"] == "F1 LIVE"
+            ):
                 return player.sync()
 
-        return {'data': 'No player has commentary.'}
+        return {"data": "No player has commentary."}
 
 
 class Player(object):
@@ -546,21 +540,21 @@ class Player(object):
     """
 
     def __init__(self, player_dict: dict):
-        self.id = player_dict['id']
-        self.state = player_dict['state']
-        self.driver_data = player_dict['driverData']
-        self.stream_data = player_dict['streamData']
-        self.content_id = self.stream_data['contentId']
-        self.channel_id = self.stream_data['channelId']
-        self.title = self.stream_data['title']
-        self.bounds = player_dict['bounds']
-        self.x = self.bounds['x']
-        self.y = self.bounds['y']
-        self.width = self.bounds['width']
-        self.height = self.bounds['height']
-        self.fullscreen = player_dict['fullscreen']
-        self.always_on_top = player_dict['alwaysOnTop']
-        self.maintain_aspect_ratio = player_dict['maintainAspectRatio']
+        self.id = player_dict["id"]
+        self.state = player_dict["state"]
+        self.driver_data = player_dict["driverData"]
+        self.stream_data = player_dict["streamData"]
+        self.content_id = self.stream_data["contentId"]
+        self.channel_id = self.stream_data["channelId"]
+        self.title = self.stream_data["title"]
+        self.bounds = player_dict["bounds"]
+        self.x = self.bounds["x"]
+        self.y = self.bounds["y"]
+        self.width = self.bounds["width"]
+        self.height = self.bounds["height"]
+        self.fullscreen = player_dict["fullscreen"]
+        self.always_on_top = player_dict["alwaysOnTop"]
+        self.maintain_aspect_ratio = player_dict["maintainAspectRatio"]
         self.remote = MultiViewerForF1()
 
     def __repr__(self) -> str:
@@ -586,9 +580,9 @@ class Player(object):
         """
         return self.remote.player_delete(self.id)
 
-    def seek(self,
-             absolute: Optional[int] = None,
-             relative: Optional[int] = None)-> dict:
+    def seek(
+        self, absolute: Optional[int] = None, relative: Optional[int] = None
+    ) -> dict:
         """
         Seeks this player's timestamp to an absolute or relative position.
 
@@ -605,15 +599,15 @@ class Player(object):
             Server response of this player's seek operation.
 
         """
-        return self.remote.player_seek_to(self.id,
-                                          absolute=absolute,
-                                          relative=relative)
+        return self.remote.player_seek_to(self.id, absolute=absolute, relative=relative)
 
-    def set_bounds(self,
-                   x: Optional[int] = None,
-                   y: Optional[int] = None,
-                   width: Optional[int] = None,
-                   height: Optional[int] = None) -> dict:
+    def set_bounds(
+        self,
+        x: Optional[int] = None,
+        y: Optional[int] = None,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+    ) -> dict:
         """
         Set bounds of this player.
 
@@ -635,11 +629,9 @@ class Player(object):
 
 
         """
-        return self.remote.player_set_bounds(self.id,
-                                             x=x,
-                                             y=y,
-                                             width=width,
-                                             height=height)
+        return self.remote.player_set_bounds(
+            self.id, x=x, y=y, width=width, height=height
+        )
 
     def set_volume(self, volume: int) -> dict:
         """
@@ -657,8 +649,7 @@ class Player(object):
 
 
         """
-        return self.remote.player_set_volume(self.id,
-                                             volume=volume)
+        return self.remote.player_set_volume(self.id, volume=volume)
 
     def pause(self, paused: Optional[bool] = None) -> dict:
         """
@@ -695,8 +686,7 @@ class Player(object):
 
 
         """
-        return self.remote.player_set_fullscreen(self.id,
-                                                 fullscreen=fullscreen)
+        return self.remote.player_set_fullscreen(self.id, fullscreen=fullscreen)
 
     def mute(self, muted: Optional[bool] = None) -> dict:
         """
@@ -716,8 +706,7 @@ class Player(object):
         """
         return self.remote.player_set_muted(self.id, muted=muted)
 
-    def set_speedometer_visibility(self,
-                                   visible: Optional[bool] = None) -> dict:
+    def set_speedometer_visibility(self, visible: Optional[bool] = None) -> dict:
         """
         Makes speedometer overlay on this player visible/invisible or specifies
           visibility.
@@ -734,8 +723,7 @@ class Player(object):
 
 
         """
-        return self.remote.player_set_speedometer_visibility(self.id,
-                                                             visible=visible)
+        return self.remote.player_set_speedometer_visibility(self.id, visible=visible)
 
     def sync(self) -> dict:
         """
@@ -751,7 +739,7 @@ class Player(object):
         """
         return self.remote.player_sync(self.id)
 
-    def switch_stream(self, title: str) -> 'Player':
+    def switch_stream(self, title: str) -> "Player":
         """
         Switch stream of this player.
 
@@ -770,13 +758,15 @@ class Player(object):
         """
         self.delete()
 
-        return self.remote.player_create(self.content_id,
-                                         self.channel_id,
-                                         stream_title=title,
-                                         x=self.x,
-                                         y=self.y,
-                                         width=self.width,
-                                         height=self.height)
+        return self.remote.player_create(
+            self.content_id,
+            self.channel_id,
+            stream_title=title,
+            x=self.x,
+            y=self.y,
+            width=self.width,
+            height=self.height,
+        )
 
 
 class MultiViewerForF1Error(Exception):
@@ -794,5 +784,6 @@ class MultiViewerForF1Error(Exception):
         Log the error.
 
     """
+
     def __init__(self, message: str):
         logging.error(f"ERROR: {message}")

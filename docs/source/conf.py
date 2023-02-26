@@ -1,5 +1,7 @@
 import sys 
 import os
+
+from mvf1 import __version__
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -11,7 +13,7 @@ import os
 project = 'mvf1'
 copyright = '2023, Rob Spectre'
 author = 'Rob Spectre'
-release = '1.0.0'
+release = __version__ 
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
