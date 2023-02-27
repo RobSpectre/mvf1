@@ -108,38 +108,30 @@ class TestMultiViewerForF1(TestCase):
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_player_create(self, mock_urlopen):
-
-        mock_urlopen.side_effect = [
-            {'data': {'playerCreate': '3'}},
-            {"data": {"player": mock_players['data']['players'][0]}}
-        ]
+        configure_mock_response(mock_urlopen,
+                                {'data': {'playerCreate': '3'}})
 
         stream_data = mock_players['data']['players'][0]['streamData']
 
-        response = self.remote.player_create(stream_data['contentId'],
-                                             stream_data['channelId'])
+        response = self.remote.player_create(stream_data['contentId'])
 
-        self.assertEqual(mock_urlopen.call_count, 2)
+        self.assertEqual(mock_urlopen.call_count, 1)
 
-        self.assertEqual(response.title, "INTERNATIONAL")
+        self.assertIn("playerCreate", str(response))
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_player_create_with_bounds(self, mock_urlopen):
-
-        mock_urlopen.side_effect = [
-            {'data': {'playerCreate': '3'}},
-            {"data": {"player": mock_players['data']['players'][0]}}
-        ]
+        configure_mock_response(mock_urlopen,
+                                {'data': {'playerCreate': '3'}})
 
         stream_data = mock_players['data']['players'][0]['streamData']
 
         response = self.remote.player_create(stream_data['contentId'],
-                                             stream_data['channelId'],
                                              x=0, y=0, width=640, height=480)
 
-        self.assertEqual(mock_urlopen.call_count, 2)
+        self.assertEqual(mock_urlopen.call_count, 1)
 
-        self.assertEqual(response.title, "INTERNATIONAL")
+        self.assertIn("playerCreate", str(response))
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_player_sync_to_commentary(self, mock_urlopen):
@@ -319,12 +311,11 @@ class TestPlayer(TestCase):
 
         mock_urlopen.side_effect = [
             {'data': {'playerDelete': True}},
-            {'data': {'playerCreate': '3'}},
-            {"data": {"player": mock_players['data']['players'][0]}}
+            {'data': {'playerCreate': '3'}}
         ]
 
         response = self.player.switch_stream('INTERNATIONAL')
 
-        self.assertEqual(mock_urlopen.call_count, 3)
+        self.assertEqual(mock_urlopen.call_count, 2)
 
-        self.assertEqual(response.title, "INTERNATIONAL")
+        self.assertIn("playerCreate", str(response))

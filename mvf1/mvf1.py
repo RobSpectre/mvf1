@@ -32,7 +32,8 @@ class MultiViewerForF1(object):
     def __init__(self, uri="http://localhost:10101/api/graphql"):
         self.endpoint = HTTPEndpoint(uri)
 
-    def perform_operation(self, operation: Operation) -> dict:
+    def perform_operation(self,
+                          operation: Operation) -> dict:
         """
         Performs the GraphQL operation.
 
@@ -166,7 +167,6 @@ class MultiViewerForF1(object):
     def player_create(
         self,
         content_id: int,
-        channel_id: int,
         driver_tla: Optional[str] = None,
         driver_number: Optional[int] = None,
         stream_title: Optional[str] = None,
@@ -177,7 +177,7 @@ class MultiViewerForF1(object):
         fullscreen: Optional[bool] = False,
         always_on_top: Optional[bool] = False,
         maintain_aspect_ratio: Optional[bool] = True,
-    ) -> "Player":
+    ) -> dict:
         """
         Creates a new player.
 
@@ -185,9 +185,6 @@ class MultiViewerForF1(object):
         ----------
         content_id: int
             Content Id.
-
-        channel_id: int
-            Channel Id.
 
         driver_tla: str, optional
             Driver three letter acronym (e.g. 'PER' or 'HAM').
@@ -221,9 +218,19 @@ class MultiViewerForF1(object):
 
         Returns
         -------
-        Player
-            Player object
+        dict
+            Dict with result of playerCreate operation. If successful, will
+            include the `player_id`.
 
+            Implementation note: we return a `player_id` instead of a `Player`
+            object is that there is ~200-800 millisecond lag in between the
+            invocation of `player_create` and the `player_id` being accessible
+            via the MultiViewer For F1 GraphQL API.  Player creation is
+            non-blocking and there is no callback when it is complete. As a
+            consequence, we leave this as an implmentation decision for you.
+
+            Most folks put a sleep in between player creation and player
+            access.
         """
         operation = Operation(schema.Mutation)
 
@@ -234,7 +241,6 @@ class MultiViewerForF1(object):
 
         player = PlayerCreateInput(
             content_id=content_id,
-            channel_id=channel_id,
             driver_tla=driver_tla,
             driver_number=driver_number,
             stream_title=stream_title,
@@ -248,7 +254,7 @@ class MultiViewerForF1(object):
 
         player_data = self.perform_operation(operation)
 
-        return self.player(player_data["data"]["playerCreate"])
+        return player_data
 
     def player_delete(self, id: int) -> dict:
         """
@@ -739,7 +745,7 @@ class Player(object):
         """
         return self.remote.player_sync(self.id)
 
-    def switch_stream(self, title: str) -> "Player":
+    def switch_stream(self, title: str) -> dict:
         """
         Switch stream of this player.
 
@@ -751,16 +757,17 @@ class Player(object):
 
         Returns
         -------
-        Player
-            Player object of player with new stream
+        dict 
+            Dict with result of player_create operation.
 
+            Please see the implementation note on 
+            `MultiViewerForF1.player_create`.
 
         """
         self.delete()
 
         return self.remote.player_create(
             self.content_id,
-            self.channel_id,
             stream_title=title,
             x=self.x,
             y=self.y,
