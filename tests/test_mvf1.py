@@ -196,6 +196,17 @@ class TestMultiViewerForF1(TestCase):
 
         self.assertIn('SetBounds', str(response))
 
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_player_set_always_on_stop(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                {'data': {'playerAlwaysOnTop': True}})
+
+        response = self.remote.player_set_always_on_top(3)
+
+        mock_urlopen.assert_called_once()
+
+        self.assertIn('AlwaysOnTop', str(response))
+
 
 class TestPlayer(TestCase):
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
@@ -239,6 +250,17 @@ class TestPlayer(TestCase):
         mock_urlopen.assert_called_once()
 
         self.assertIn('SetMuted', str(response))
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_always_on_top(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                {'data': {'playerSetAlwaysOnTop': True}})
+
+        response = self.player.set_always_on_top()
+
+        mock_urlopen.assert_called_once()
+
+        self.assertIn('AlwaysOnTop', str(response))
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_set_fullscreen(self, mock_urlopen):

@@ -311,6 +311,20 @@ class TestMultiViewerForF1CommandLineInterfacePlayer(TestCase):
         self.assertIn("INTERNATIONAL", response.output)
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_player_always_on_top(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                {'data': {'player':
+                                          mock_players['data']['players'][0]}})
+
+        response = self.runner.invoke(cli, ["player",
+                                            "--id",
+                                            "3",
+                                            "set-always-on-top"])
+
+        self.assertEqual(response.exit_code, 0)
+        self.assertIn("INTERNATIONAL", response.output)
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_player_pause(self, mock_urlopen):
         configure_mock_response(mock_urlopen,
                                 {'data': {'player':
@@ -453,6 +467,8 @@ class TestMultiViewerForF1CommandLineInterfacePlayer(TestCase):
             {"data": {"player": mock_players['data']['players'][0]}},
             MultiViewerForF1Error("Whoopsie doodle!"),
             {"data": {"player": mock_players['data']['players'][0]}},
+            MultiViewerForF1Error("Whoopsie doodle!"),
+            {"data": {"player": mock_players['data']['players'][0]}},
             MultiViewerForF1Error("Whoopsie doodle!")
         ]
         configure_mock_response(mock_urlopen,
@@ -464,6 +480,7 @@ class TestMultiViewerForF1CommandLineInterfacePlayer(TestCase):
             ["player", "--id", "3", "pause"],
             ["player", "--id", "3", "sync"],
             ["player", "--id", "3", "mute"],
+            ["player", "--id", "3", "set-always-on-top"],
             ["player", "--id", "3", "set-fullscreen"],
             ["player", "--id", "3", "set-speedometer-visibility"],
             ["player", "--id", "3", "seek", "--relative", "300"],
@@ -502,6 +519,8 @@ class TestMultiViewerForF1CommandLineInterfacePlayer(TestCase):
             {"data": {"player": mock_players['data']['players'][0]}},
             URLError("Whoopsie doodle!"),
             {"data": {"player": mock_players['data']['players'][0]}},
+            URLError("Whoopsie doodle!"),
+            {"data": {"player": mock_players['data']['players'][0]}},
             URLError("Whoopsie doodle!")
         ]
         configure_mock_response(mock_urlopen,
@@ -513,6 +532,7 @@ class TestMultiViewerForF1CommandLineInterfacePlayer(TestCase):
             ["player", "--id", "3", "pause"],
             ["player", "--id", "3", "sync"],
             ["player", "--id", "3", "mute"],
+            ["player", "--id", "3", "set-always-on-top"],
             ["player", "--id", "3", "set-fullscreen"],
             ["player", "--id", "3", "seek", "--relative", "300"],
             ["player", "--id", "3", "set-speedometer-visibility"],
@@ -551,6 +571,8 @@ class TestMultiViewerForF1CommandLineInterfacePlayer(TestCase):
             {"data": {"player": mock_players['data']['players'][0]}},
             Exception("Whoopsie doodle!"),
             {"data": {"player": mock_players['data']['players'][0]}},
+            Exception("Whoopsie doodle!"),
+            {"data": {"player": mock_players['data']['players'][0]}},
             Exception("Whoopsie doodle!")
         ]
         configure_mock_response(mock_urlopen,
@@ -562,6 +584,7 @@ class TestMultiViewerForF1CommandLineInterfacePlayer(TestCase):
             ["player", "--id", "3", "pause"],
             ["player", "--id", "3", "sync"],
             ["player", "--id", "3", "mute"],
+            ["player", "--id", "3", "set-always-on-top"],
             ["player", "--id", "3", "set-fullscreen"],
             ["player", "--id", "3", "set-speedometer-visibility"],
             ["player", "--id", "3", "seek", "--relative", "300"],

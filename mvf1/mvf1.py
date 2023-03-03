@@ -448,7 +448,7 @@ class MultiViewerForF1(object):
 
         Parameters
         ----------
-        id: str
+        id: int 
             Id of player.
 
         visible: bool, optional
@@ -462,6 +462,31 @@ class MultiViewerForF1(object):
         """
         operation = Operation(schema.Mutation)
         operation.player_set_speedometer_visibility(id=id, visible=visible)
+
+        return self.perform_operation(operation)
+
+    def player_set_always_on_top(
+        self, id: int, always_on_top: Optional[bool] = None
+    ) -> dict:
+        """
+        Sets player on/off always on top.
+
+        Parameters
+        ----------
+        id: int 
+            Id of player.
+
+        always_on_top: bool, optional
+            Is the player always on top?
+
+        Returns
+        -------
+        dict
+            True if operation is successful.
+
+        """
+        operation = Operation(schema.Mutation)
+        operation.player_set_always_on_top(id=id, always_on_top=always_on_top) 
 
         return self.perform_operation(operation)
 
@@ -730,6 +755,26 @@ class Player(object):
 
         """
         return self.remote.player_set_speedometer_visibility(self.id, visible=visible)
+
+    def set_always_on_top(self, always_on_top: Optional[bool] = None) -> dict:
+        """
+        Turns player on/off always on top.
+
+        Parameters
+        ----------
+        always_on_top: bool, optional
+            Is the player always on top?
+
+        Returns
+        -------
+        dict
+            Server response fo this player's speedometer visibility.
+
+
+        """
+        return self.remote.player_set_always_on_top(self.id,
+                                                    always_on_top=always_on_top)
+
 
     def sync(self) -> dict:
         """

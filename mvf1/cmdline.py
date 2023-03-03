@@ -332,6 +332,22 @@ def mute(ctx):
         raise click.UsageError(f"Unexpected error: {str(e)}")
     click.echo("Done.")
 
+@mv_player.command(help="Toggle always on top")
+@click.pass_context
+def set_always_on_top(ctx):
+    player = ctx.obj["player"]
+    click.echo(f"Muting player ID {player.id} - {player.title}...")
+    try:
+        player.set_always_on_top()
+    except URLError:
+        raise click.UsageError("MultiViewer for F1 not found. Is the app "
+                               "running?")
+    except MultiViewerForF1Error as e:
+        raise click.UsageError(f"MultiViewer for F1 error: {str(e)}")
+    except Exception as e:
+        raise click.UsageError(f"Unexpected error: {str(e)}")
+    click.echo("Done.")
+
 
 @mv_player.command(help="Toggle speedometer visibility")
 @click.pass_context
