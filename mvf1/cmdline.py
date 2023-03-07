@@ -2,6 +2,7 @@ import click
 
 from mvf1 import MultiViewerForF1
 from mvf1 import MultiViewerForF1Error
+from mvf1 import __version__
 
 from urllib.error import URLError
 
@@ -9,6 +10,7 @@ remote = MultiViewerForF1()
 
 
 @click.group()
+@click.version_option(__version__)
 def cli():
     pass
 
@@ -115,6 +117,33 @@ def players_pause():
         click.echo(f"Pausing ID {player.id} - {player.title}...")
         try:
             player.pause()
+        except URLError:
+            raise click.UsageError("MultiViewer for F1 not found. Is the app "
+                                   "running?")
+        except MultiViewerForF1Error as e:
+            raise click.UsageError(f"MultiViewer for F1 error: {str(e)}")
+        except Exception as e:
+            raise click.UsageError(f"Unexpected error: {str(e)}")
+    click.echo("Done.")
+
+
+@mv_players.command(help="Toggle speedometers for driver feeds.",
+                    name="toggle-speedometers")
+def players_set_speedometer_visibility():
+    try:
+        players = remote.players
+    except URLError:
+        raise click.UsageError("MultiViewer for F1 not found. Is the app "
+                               "running?")
+    except MultiViewerForF1Error as e:
+        raise click.UsageError(f"MultiViewer for F1 error: {str(e)}")
+    except Exception as e:
+        raise click.UsageError(f"Unexpected error: {str(e)}")
+    for player in players:
+        try:
+            if len(player.title) == 3:
+                click.echo(f"Toggling speedometer for ID {player.id} - {player.title}...")
+                player.set_speedometer_visibility()
         except URLError:
             raise click.UsageError("MultiViewer for F1 not found. Is the app "
                                    "running?")

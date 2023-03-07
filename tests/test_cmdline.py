@@ -159,6 +159,36 @@ class TestMultiViewerForF1CommandLineInterfacePlayers(TestCase):
         self.assertIn("broadcast commentary", response.output)
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_players_toggle_speedometers(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                mock_players)
+
+        response = self.runner.invoke(cli, ["players", "toggle-speedometers"])
+
+        self.assertEqual(response.exit_code, 0)
+        self.assertIn("Toggling speedometer", response.output)
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_players_toggle_speedometers_exceptions(self, mock_urlopen):
+        side_effects = [
+            mock_players,
+            URLError("Whoopsie doodle!"),
+            mock_players,
+            MultiViewerForF1Error("Whoopsie doodle!"),
+            mock_players,
+            Exception("Whoopsie doodle!")
+        ]
+
+        configure_mock_response(mock_urlopen,
+                                side_effects)
+
+        for i in range(3):
+            response = self.runner.invoke(cli, ["players", "toggle-speedometers"])
+
+            self.assertEqual(response.exit_code, 2)
+            self.assertIn("error", response.output.lower())
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_players_exceptions_gql_error(self, mock_urlopen):
         configure_mock_response(mock_urlopen,
                                 MultiViewerForF1Error("Whoopsie doodle!"))
@@ -168,7 +198,8 @@ class TestMultiViewerForF1CommandLineInterfacePlayers(TestCase):
             ["players", "mute"],
             ["players", "close"],
             ["players", "pause"],
-            ["players", "sync"]
+            ["players", "sync"],
+            ["players", "toggle-speedometers"]
         ]
 
         for command in commands:
@@ -187,7 +218,8 @@ class TestMultiViewerForF1CommandLineInterfacePlayers(TestCase):
             ["players", "mute"],
             ["players", "close"],
             ["players", "pause"],
-            ["players", "sync"]
+            ["players", "sync"],
+            ["players", "toggle-speedometers"]
         ]
 
         for command in commands:
@@ -206,7 +238,8 @@ class TestMultiViewerForF1CommandLineInterfacePlayers(TestCase):
             ["players", "mute"],
             ["players", "close"],
             ["players", "pause"],
-            ["players", "sync"]
+            ["players", "sync"],
+            ["players", "toggle-speedometers"]
         ]
 
         for command in commands:
