@@ -19,6 +19,11 @@ class BigInt(sgqlc.types.Scalar):
 
 Boolean = sgqlc.types.Boolean
 
+class DriverHeaderMode(sgqlc.types.Enum):
+    __schema__ = mvf1_schema
+    __choices__ = ('DRIVER_HEADER', 'NONE', 'OBC_LIVE_TIMING')
+
+
 Float = sgqlc.types.Float
 
 ID = sgqlc.types.ID
@@ -35,6 +40,11 @@ class PlayerType(sgqlc.types.Enum):
 
 
 String = sgqlc.types.String
+
+class SubscriptionType(sgqlc.types.Enum):
+    __schema__ = mvf1_schema
+    __choices__ = ('F1TV_ACCESS', 'F1TV_PRO', 'F1_ACCESS')
+
 
 
 ########################################################################
@@ -107,7 +117,7 @@ class LiveTimingState(sgqlc.types.Type):
 
 class Mutation(sgqlc.types.Type):
     __schema__ = mvf1_schema
-    __field_names__ = ('version', 'player_create', 'player_delete', 'player_set_fullscreen', 'player_set_always_on_top', 'player_set_bounds', 'player_set_volume', 'player_set_paused', 'player_set_muted', 'player_seek_to', 'player_sync', 'player_set_speedometer_visibility')
+    __field_names__ = ('version', 'player_create', 'player_delete', 'player_set_fullscreen', 'player_set_always_on_top', 'player_set_bounds', 'player_set_volume', 'player_set_paused', 'player_set_muted', 'player_seek_to', 'player_sync', 'player_set_speedometer_visibility', 'player_set_driver_header_mode')
     version = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='version')
     player_create = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='playerCreate', args=sgqlc.types.ArgDict((
         ('input', sgqlc.types.Arg(sgqlc.types.non_null(PlayerCreateInput), graphql_name='input', default=None)),
@@ -163,6 +173,11 @@ class Mutation(sgqlc.types.Type):
         ('visible', sgqlc.types.Arg(Boolean, graphql_name='visible', default=None)),
 ))
     )
+    player_set_driver_header_mode = sgqlc.types.Field(sgqlc.types.non_null(DriverHeaderMode), graphql_name='playerSetDriverHeaderMode', args=sgqlc.types.ArgDict((
+        ('id', sgqlc.types.Arg(sgqlc.types.non_null(ID), graphql_name='id', default=None)),
+        ('mode', sgqlc.types.Arg(sgqlc.types.non_null(DriverHeaderMode), graphql_name='mode', default=None)),
+))
+    )
 
 
 class Player(sgqlc.types.Type):
@@ -213,7 +228,7 @@ class PlayerStreamData(sgqlc.types.Type):
 
 class Query(sgqlc.types.Type):
     __schema__ = mvf1_schema
-    __field_names__ = ('version', 'system_info', 'players', 'player', 'live_timing_state', 'live_timing_clock')
+    __field_names__ = ('version', 'system_info', 'players', 'player', 'live_timing_state', 'live_timing_clock', 'active_subscriptions')
     version = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='version')
     system_info = sgqlc.types.Field(sgqlc.types.non_null('SystemInfo'), graphql_name='systemInfo')
     players = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(Player))), graphql_name='players')
@@ -223,6 +238,7 @@ class Query(sgqlc.types.Type):
     )
     live_timing_state = sgqlc.types.Field(LiveTimingState, graphql_name='liveTimingState')
     live_timing_clock = sgqlc.types.Field(LiveTimingClock, graphql_name='liveTimingClock')
+    active_subscriptions = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null('Subscription'))), graphql_name='activeSubscriptions')
 
 
 class Rectangle(sgqlc.types.Type):
@@ -232,6 +248,14 @@ class Rectangle(sgqlc.types.Type):
     y = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='y')
     width = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='width')
     height = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='height')
+
+
+class Subscription(sgqlc.types.Type):
+    __schema__ = mvf1_schema
+    __field_names__ = ('subscription_type', 'expires_at', 'signature')
+    subscription_type = sgqlc.types.Field(sgqlc.types.non_null(SubscriptionType), graphql_name='subscriptionType')
+    expires_at = sgqlc.types.Field(Int, graphql_name='expiresAt')
+    signature = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='signature')
 
 
 class SystemInfo(sgqlc.types.Type):
@@ -251,5 +275,5 @@ class SystemInfo(sgqlc.types.Type):
 ########################################################################
 mvf1_schema.query_type = Query
 mvf1_schema.mutation_type = Mutation
-mvf1_schema.subscription_type = None
+mvf1_schema.subscription_type = Subscription
 

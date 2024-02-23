@@ -207,6 +207,25 @@ class TestMultiViewerForF1(TestCase):
 
         self.assertIn('AlwaysOnTop', str(response))
 
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_player_set_driver_header_mode(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                {'data': {'playerSetDriverHeaderMode': 'OBC_LIVE_TIMING'}})
+
+        response = self.remote.player_set_driver_header_mode("OBC_LIVE_TIMING")
+
+        mock_urlopen.assert_called_once()
+
+        self.assertIn('OBC_LIVE_TIMING', str(response))
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_player_set_driver_header_mode_wrong_input(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                ValueError("Naughty."))
+
+        with self.assertRaises(MultiViewerForF1Error):
+            self.remote.player_set_driver_header_mode("wat?")
+
 
 class TestPlayer(TestCase):
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
@@ -283,6 +302,17 @@ class TestPlayer(TestCase):
         mock_urlopen.assert_called_once()
 
         self.assertIn('playerSetSpeedometerVisibility', str(response))
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_set_driver_header_mode(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                {'data': {'playerSetDriverHeaderMode': 'OBC_LIVE_TIMING'}})
+
+        response = self.player.set_driver_header_mode("OBC_LIVE_TIMING")
+
+        mock_urlopen.assert_called_once()
+
+        self.assertIn('OBC_LIVE_TIMING', str(response))
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_sync(self, mock_urlopen):

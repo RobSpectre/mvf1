@@ -465,6 +465,38 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
+    def player_set_driver_header_mode(self,
+                                      id: int,
+                                      mode: Optional[str] = None) -> dict:
+
+        """
+        Sets the overlay display for a driver stream.
+
+        Parameters
+        ----------
+        id: int
+            Id of player.
+
+        mode: str, optional
+            Desired overlay of the player - can be DRIVER_HEADER, NONE or
+            OBC_LIVE_TIMING
+
+        Returns
+        -------
+        dict
+            True if operation is successful.
+
+        """
+        operation = Operation(schema.Mutation)
+
+        operation.player_set_driver_header_mode(id=id, mode=mode)
+
+        try:
+            return self.perform_operation(operation)
+        except ValueError as e:
+            raise MultiViewerForF1Error(f"{e} - can be DRIVER_HEADER, NONE"
+                                         " or OBC_LIVE_TIMING.")
+
     def player_set_always_on_top(
         self, id: int, always_on_top: Optional[bool] = None
     ) -> dict:
@@ -756,6 +788,28 @@ class Player(object):
         """
         return self.remote.player_set_speedometer_visibility(self.id, visible=visible)
 
+    def set_driver_header_mode(self, mode: Optional[str] = None) -> dict:
+        """
+        Sets the overlay display for a driver stream.
+
+        Parameters
+        ----------
+        id: int
+            Id of player.
+
+        mode: str, optional
+            Desired overlay of the player - can be DRIVER_HEADER, NONE or
+            OBC_LIVE_TIMING
+
+        Returns
+        -------
+        dict
+           Server response to this player's driver header mode. 
+
+        """
+
+        return self.remote.player_set_driver_header_mode(self.id, mode=mode)
+
     def set_always_on_top(self, always_on_top: Optional[bool] = None) -> dict:
         """
         Turns player on/off always on top.
@@ -774,7 +828,6 @@ class Player(object):
         """
         return self.remote.player_set_always_on_top(self.id,
                                                     always_on_top=always_on_top)
-
 
     def sync(self) -> dict:
         """
