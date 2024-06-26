@@ -68,7 +68,7 @@ class MultiViewerForF1(object):
 
         """
         operation = Operation(schema.Query)
-        operation.live_timing_clock()
+        operation.f1_live_timing_clock()
 
         return self.perform_operation(operation)
 
@@ -84,7 +84,55 @@ class MultiViewerForF1(object):
 
         """
         operation = Operation(schema.Query)
-        operation.live_timing_state()
+        operation.f1_live_timing_state()
+
+        return self.perform_operation(operation)
+
+    @property
+    def f1_live_timing_clock(self) -> dict:
+        """
+        Returns the time for an event when it is live.
+
+        Returns
+        -------
+        dict
+            Current time.
+
+        """
+        operation = Operation(schema.Query)
+        operation.f1_live_timing_clock()
+
+        return self.perform_operation(operation)
+
+    @property
+    def f1_live_timing_state(self) -> dict:
+        """
+        Returns state of live timing at current time.
+
+        Returns
+        -------
+        dict
+            Current state.
+
+        """
+        operation = Operation(schema.Query)
+        operation.f1_live_timing_state()
+
+        return self.perform_operation(operation)
+
+    @property
+    def fiawec_live_timing_state(self) -> dict:
+        """
+        Returns state of live timing at current time.
+
+        Returns
+        -------
+        dict
+            Current state.
+
+        """
+        operation = Operation(schema.Query)
+        operation.fiawec_live_timing_state()
 
         return self.perform_operation(operation)
 

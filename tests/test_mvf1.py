@@ -50,11 +50,45 @@ class TestMultiViewerForF1(TestCase):
         self.assertIn("liveTimingClock", str(response))
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_f1_live_timing_clock(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                {"data": {"liveTimingClock": None}})
+
+        response = self.remote.f1_live_timing_clock
+
+        self.query.live_timing_clock()
+
+        mock_urlopen.assert_called_once()
+        self.assertIn("liveTimingClock", str(response))
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_live_timing_state(self, mock_urlopen):
         configure_mock_response(mock_urlopen,
                                 {'data': {'liveTimingState': None}})
 
         response = self.remote.live_timing_state
+
+        mock_urlopen.assert_called_once()
+
+        self.assertIn("liveTimingState", str(response))
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_f1_live_timing_state(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                {'data': {'liveTimingState': None}})
+
+        response = self.remote.f1_live_timing_state
+
+        mock_urlopen.assert_called_once()
+
+        self.assertIn("liveTimingState", str(response))
+
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_fiawec_live_timing_state(self, mock_urlopen):
+        configure_mock_response(mock_urlopen,
+                                {'data': {'liveTimingState': None}})
+
+        response = self.remote.fiawec_live_timing_state
 
         mock_urlopen.assert_called_once()
 
