@@ -1,10 +1,8 @@
-from mvf1 import __version__
-
 scripts = ['bin/mvf1-cli']
 
 setup_args = {
     "name": "mvf1",
-    "version": __version__,
+    "version": "1.1.4",
     "url": "https://github.com/RobSpectre/mvf1",
     "description": "A Python package to control video players for "
                    "MultiViewer for F1, the best way to watch "
