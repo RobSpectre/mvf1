@@ -58,12 +58,30 @@ Command Line
 
     $ mvf1-cli --help
 
-MCP Server
+Model Context Protocol (MCP) Server
 ----------------
 
 .. code-block:: bash
 
     $ mvf1-cli mcp 
+
+To use in an AI agent, use your framework's affordance for a `stdio` MCP
+server.
+
+Here is an example with PydanticAI.
+
+.. code-block:: python
+
+    from pydantic_ai import Agent
+    from pydantic_ai.mcp import MCPServerStdio
+
+    server = MCPServerStdio(  
+        'mvf1-cli',
+        args=[
+            'mcp'
+        ]
+    )
+    agent = Agent('openai:gpt-4o', mcp_servers=[server])
 
 Library
 ----------------
@@ -167,7 +185,7 @@ Meta
   `Formula 1 TV`.
 * Shout out to the excellent `MultiViewer For F1`_ team! This app absolutely
   changed how I enjoy Formula 1.
-* 🏎️ ¡Vamos Checo! 🏎️
+* 🏎️ Go Weeyums! 🏎️
 
 
 .. _MultiViewer for F1: https://multiviewer.app/
