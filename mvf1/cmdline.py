@@ -3,6 +3,7 @@ import click
 from mvf1 import MultiViewerForF1
 from mvf1 import MultiViewerForF1Error
 from mvf1 import __version__
+from mvf1 import mcp
 
 from urllib.error import URLError
 
@@ -434,3 +435,8 @@ def switch_stream(ctx, title):
     except Exception as e:
         raise click.UsageError(f"Unexpected error: {str(e)}")
     click.echo("Done.")
+
+
+@cli.command(help="Run Model Context Protocol server.", name="mcp")
+def run_mcp():
+    mcp.run()

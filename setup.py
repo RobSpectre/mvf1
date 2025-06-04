@@ -2,11 +2,11 @@ scripts = ['bin/mvf1-cli']
 
 setup_args = {
     "name": "mvf1",
-    "version": "1.1.4",
+    "version": "2.0.0",
     "url": "https://github.com/RobSpectre/mvf1",
-    "description": "A Python package to control video players for "
-                   "MultiViewer for F1, the best way to watch "
-                   "Formula 1.",
+    "description": "A Python package and MCP server to control "
+                   "video players for MultiViewer, the best way"
+                   "to watch motorsports like Formula 1.",
     "long_description": open('README.rst').read(),
     "author": "Rob Spectre",
     "author_email": "rob@brooklynhacker.com",
