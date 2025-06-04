@@ -2,7 +2,7 @@
 mvf1
 ***************
 
-A Python package and command line interface to control video players for
+A Python package, command line interface and MCP server to control video players for
 `MultiViewer For F1`_, the best way to watch Formula 1.
 
 .. image:: https://dl.circleci.com/status-badge/img/gh/RobSpectre/mvf1/tree/main.svg?style=svg
@@ -57,6 +57,13 @@ Command Line
 .. code-block:: bash
 
     $ mvf1-cli --help
+
+MCP Server
+----------------
+
+.. code-block:: bash
+
+    $ mvf1-cli mcp 
 
 Library
 ----------------
