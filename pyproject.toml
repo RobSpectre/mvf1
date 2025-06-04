@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mvf1"
+version = "2.0.0"
+description = "A Python package and MCP server to control video players for MultiViewer, the best way to watch motorsports like Formula 1."
+readme = "README.rst"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Rob Spectre", email = "rob@brooklynhacker.com" },
+]
+keywords = ["multiviewer", "formula1", "mcp", "video", "motorsports"]
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Natural Language :: English',
+    'Environment :: Console',
+]
+
+dependencies = [
+    "click",
+    "sgqlc",
+    "fastmcp",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/RobSpectre/mvf1"
+"Repository" = "https://github.com/RobSpectre/mvf1"
+"Bug Tracker" = "https://github.com/RobSpectre/mvf1/issues"
+
+[project.scripts]
+mvf1-cli = "mvf1.cmdline:cli"
+
+[tool.setuptools]
+packages = ["mvf1"]
+include-package-data = true
