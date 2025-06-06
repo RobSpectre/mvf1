@@ -3,7 +3,7 @@ mvf1
 ***************
 
 A Python package, command line interface and MCP server to control video players for
-`MultiViewer For F1`_, the best way to watch Formula 1.
+`MultiViewer`_, the best way to watch Formula 1.
 
 .. image:: https://dl.circleci.com/status-badge/img/gh/RobSpectre/mvf1/tree/main.svg?style=svg
         :target: https://dl.circleci.com/status-badge/redirect/gh/RobSpectre/mvf1/tree/main
@@ -29,9 +29,11 @@ Table of Contents
 Features
 ===============
 
-* Command line interface for controlling `MultiViewer For F1`_. Useful for
+* Command line interface for controlling `MultiViewer`_. Useful for
   integrations with control interfaces like `StreamDeck`_
-* Pythonic interface for controlling `MultiViewer For F1`_. No GraphQL needed!
+* Pythonic interface for controlling `MultiViewer`_. No GraphQL needed!
+* MCP server for controlling `MultiViewer`_ - perfect for controlling the
+  broadcast for with AI agents.
 * `Type hints`_
 * `Full documentation`_
 * `Test coverage`_
@@ -188,7 +190,7 @@ Meta
 * 🏎️ Go Weeyums! 🏎️
 
 
-.. _MultiViewer for F1: https://multiviewer.app/
+.. _MultiViewer: https://multiviewer.app/
 .. _pip: https://multiviewer.app/
 .. _GitHub Repo: https://github.com/RobSpectre/mvf1
 .. _virtualenv: https://multiviewer.app/
