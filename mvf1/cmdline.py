@@ -438,5 +438,12 @@ def switch_stream(ctx, title):
 
 
 @cli.command(help="Run Model Context Protocol server.", name="mcp")
-def run_mcp():
-    mcp.run()
+@click.option(
+    "--url", 
+    default="http://localhost:10101/api/graphql", 
+    help="URL for MultiViewer for F1 GraphQL API endpoint."
+)
+def run_mcp(url):
+    from mvf1.mcp import create_mcp_server
+    mcp_server = create_mcp_server(url)
+    mcp_server.run()

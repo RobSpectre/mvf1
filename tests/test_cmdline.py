@@ -631,3 +631,31 @@ class TestMultiViewerForF1CommandLineInterfacePlayer(TestCase):
 
             self.assertEqual(response.exit_code, 2)
             self.assertIn("error", response.output.lower())
+
+
+class TestMultiViewerForF1CommandLineInterfaceMCP(TestCase):
+    def setUp(self):
+        self.runner = CliRunner()
+
+    def test_mcp_default_url(self):
+        """Test MCP command accepts default URL parameter."""
+        # Test the command line parsing, not the MCP functionality
+        response = self.runner.invoke(cli, ["mcp", "--help"])
+        self.assertEqual(response.exit_code, 0)
+        self.assertIn("--url", response.output)
+
+    def test_mcp_custom_url_parsing(self):
+        """Test MCP command accepts custom URL parameter.""" 
+        # Since we can't easily test the actual MCP server without dependencies,
+        # we'll just test that the command line parsing works correctly
+        result = self.runner.invoke(cli, ["mcp", "--url", "http://test:8080/api/graphql", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("--url", result.output)
+
+    def test_mcp_help_shows_url_option(self):
+        """Test that MCP help shows the URL option."""
+        response = self.runner.invoke(cli, ["mcp", "--help"])
+        
+        self.assertEqual(response.exit_code, 0)
+        self.assertIn("--url", response.output)
+        self.assertIn("URL for MultiViewer for F1 GraphQL API endpoint", response.output)

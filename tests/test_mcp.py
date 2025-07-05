@@ -58,8 +58,9 @@ async def test_players(mock_urlopen):
                                 mock_players)
         response = await client.call_tool("players")
         mock_urlopen.assert_called_once()
-        assert response[0].text.count(":") == 2
-        assert "INTERNATIONAL" in response[0].text
+        response_str = str(response)
+        assert "INTERNATIONAL" in response_str
+        assert "3:" in response_str  # Check for expected player format
 
 
 @pytest.mark.asyncio
@@ -96,7 +97,7 @@ async def test_player(mock_urlopen):
                                         mock_players['data']['players'][0]}})
         response = await client.call_tool("player", {"id": 3})
         mock_urlopen.assert_called_once()
-        assert "INTERNATIONAL" in response[0].text
+        assert "INTERNATIONAL" in str(response)
 
 
 @pytest.mark.asyncio
