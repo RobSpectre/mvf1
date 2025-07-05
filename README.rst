@@ -61,7 +61,7 @@ Command Line
     $ mvf1-cli --help
 
 Model Context Protocol (MCP) Server
-----------------
+------------------------------------
 
 .. code-block:: bash
 
@@ -183,9 +183,9 @@ Meta
 * Written by `Rob Spectre`_.
 * Released under `MIT License`_.
 * Software is as is - no warranty expressed or implied, diggity.
-* This package is not developed or maintained by `MultiViewer For F1`_ or
-  `Formula 1 TV`.
-* Shout out to the excellent `MultiViewer For F1`_ team! This app absolutely
+* This package is not developed or maintained by `MultiViewer`_ or
+  `Formula 1 TV`_.
+* Shout out to the excellent `MultiViewer`_ team! This app absolutely
   changed how I enjoy Formula 1.
 * 🏎️ Go Weeyums! 🏎️
 
@@ -202,3 +202,4 @@ Meta
 .. _type hints: https://docs.python.org/3/library/typing.html
 .. _Full documentation: https://mvf1.readthedocs.io/en/latest/
 .. _Test coverage: https://app.codecov.io/gh/RobSpectre/mvf1
+.. _Formula 1 TV: https://f1tv.formula1.com/
