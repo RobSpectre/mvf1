@@ -106,7 +106,16 @@ Synchronize all players to player streaming broadcast commentary
     >>> remote = MultiViewerForF1()
     >>> remote.player_sync_to_commentary()
     {'data': {'playerSync': True}}
-    
+
+Synchronize open players to live timing
+
+.. code-block:: python
+
+    >>> from mvf1 import MultiViewerForF1
+    >>> remote = MultiViewerForF1()
+    >>> remote.player_sync_to_live_timing()
+    {'data': {'meeting_id': '1279', 'session_id': '11234', 'synced_players': [...]}}
+
 
 Development
 ================

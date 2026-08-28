@@ -147,6 +147,20 @@ Synchornize all players to player streaming broadcast commentary
     >>> remote.player_sync_to_commentary()
     {'data': {'playerSync': True}}
 
+Synchronize open players to live timing
+
+.. code-block:: python
+
+    >>> from mvf1 import MultiViewerForF1
+    >>> remote = MultiViewerForF1()
+    >>> remote.player_sync_to_live_timing()
+    {'data': {'meeting_id': '1279', 'session_id': '11234', 'synced_players': [...]}}
+
+The same operation is available to MCP clients as
+``player_sync_to_live_timing``. It uses the current live-timing clock,
+session start, and each feed's signed offset to seek matching open players to
+the first open player's session.
+
 
 Development
 ================

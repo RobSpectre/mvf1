@@ -197,6 +197,78 @@ class TestMultiViewerForF1(TestCase):
 
         self.assertIn('No player', str(response))
 
+    @patch('mvf1.mvf1.requests.get')
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_player_sync_to_live_timing(self, mock_urlopen, mock_get):
+        mock_get.return_value.json.return_value = {
+            'session_start': '500.0',
+            'sync_offsets': {
+                'sync_offsets': [
+                    {
+                        'diff': 1.5,
+                        'streamData': {
+                            'contentId': '1000010188',
+                            'channelId': 1025,
+                        },
+                    },
+                    {
+                        'diff': -2.25,
+                        'streamData': {
+                            'contentId': '1000010188',
+                            'channelId': 4171,
+                        },
+                    },
+                ],
+            },
+        }
+        mock_urlopen.side_effect = [
+            mock_players,
+            {
+                'data': {
+                    'f1LiveTimingClock': {
+                        'trackTime': '200000',
+                        'liveTimingStartTime': '100000',
+                    },
+                },
+            },
+            {'data': {'playerSeekTo': 601.5}},
+            {'data': {'playerSeekTo': 597.75}},
+        ]
+
+        response = self.remote.player_sync_to_live_timing()
+
+        mock_get.assert_called_once_with(
+            'https://api.multiviewer.dev/api/v1/meetings/1006/sessions/5442',
+            timeout=10,
+        )
+        self.assertEqual(mock_urlopen.call_count, 4)
+        self.assertEqual(
+            response['data']['synced_players'][0]['offset'], 1.5
+        )
+        self.assertEqual(
+            response['data']['synced_players'][1]['offset'], -2.25
+        )
+        self.assertEqual(
+            response['data']['synced_players'][0]['position'], 601.5
+        )
+        self.assertEqual(
+            response['data']['synced_players'][1]['position'], 597.75
+        )
+
+    @patch('mvf1.mvf1.requests.get')
+    @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
+    def test_player_sync_to_live_timing_without_offsets(
+        self, mock_urlopen, mock_get
+    ):
+        mock_get.return_value.json.return_value = {'sync_offsets': None}
+
+        mock_urlopen.return_value = mock_players
+
+        response = self.remote.player_sync_to_live_timing()
+
+        mock_urlopen.assert_called_once()
+        self.assertEqual(response['data']['synced_players'], [])
+
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_player_delete(self, mock_urlopen):
         configure_mock_response(mock_urlopen,

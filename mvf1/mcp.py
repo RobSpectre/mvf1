@@ -41,6 +41,12 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
                   players() to get the current state of all the video
                   players.
 
+                  To create a video player with player_create(), you need
+                  a contentId. Call f1_live_timing_state() to get the
+                  meeting key from SessionInfo.Meeting.Key, then call
+                  content_ids() with that meeting key to get the
+                  contentId for the session you want to watch.
+
                   Note that new players take between 500-800 milliseconds
                   to full initialize - always pause before performing
                   a mutation on a freshly created player.
@@ -75,15 +81,37 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
         when it is playing. These data provide the current
         race information including racing order, lap times,
         race control messages, position on track, and
-        driver telemetry.
+        driver telemetry. Also includes SessionInfo with the
+        meeting key needed by content_ids().
 
         Returns
         -------
         dict
-            Current state of Formula 1 race.
+            Current state of Formula 1 race. The meeting key is at
+            SessionInfo.Meeting.Key.
 
         """
         return client.f1_live_timing_state
+
+    @mcp.tool()
+    def content_ids(meeting_key: str) -> dict:
+        """
+        Returns the contentIds for every session in a meeting. A
+        contentId is required to create a video player with
+        player_create().
+
+        Parameters
+        ----------
+        meeting_key: str
+            Meeting key from f1_live_timing_state (SessionInfo.Meeting.Key).
+
+        Returns
+        -------
+        dict
+            Dictionary mapping session titles to their F1 TV contentIds.
+
+        """
+        return client.content_ids(meeting_key)
 
     @mcp.tool()
     def fiawec_live_timing_state() -> dict:
@@ -180,6 +208,10 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
     ) -> dict:
         """
         Creates a new MultiViewer video player.
+
+        You need a contentId to create a player. Get it by calling
+        f1_live_timing_state() for the meeting key, then content_ids()
+        with the meeting key to get the contentId for the session.
 
         Parameters
         ----------
@@ -524,6 +556,21 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
 
         """
         return client.player_sync_to_commentary()
+
+    @mcp.tool()
+    def player_sync_to_live_timing() -> dict:
+        """
+        Synchronizes open video players to the live-timing state for a
+        session represented by the first open player. Only players whose
+        content and channel IDs match a feed in that session are adjusted.
+
+        Returns
+        -------
+        dict
+            A summary of the players whose relative positions were adjusted.
+
+        """
+        return client.player_sync_to_live_timing()
 
     @mcp.tool()
     def player_get_content_id() -> str:

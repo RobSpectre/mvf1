@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 
+import requests
 from sgqlc.operation import Operation
 from sgqlc.endpoint.http import HTTPEndpoint
 
@@ -325,7 +326,10 @@ class MultiViewerForF1(object):
         return self.perform_operation(operation)
 
     def player_seek_to(
-        self, id: int, absolute: Optional[int] = None, relative: Optional[int] = None
+        self,
+        id: int,
+        absolute: Optional[float] = None,
+        relative: Optional[float] = None,
     ) -> dict:
         """
         Seeks to a specific position.
@@ -335,10 +339,10 @@ class MultiViewerForF1(object):
         id: int
             Id of player.
 
-        absolute: int, optional
+        absolute: float, optional
             Absolute position.
 
-        relative: int, optional
+        relative: float, optional
             Relative position.
 
         Returns
@@ -608,6 +612,141 @@ class MultiViewerForF1(object):
                 return player.sync()
 
         return {"data": "No player has commentary."}
+
+    def player_sync_to_live_timing(self) -> dict:
+        """Synchronize open players to a session's live-timing offsets.
+
+        The MultiViewer sessions API provides a relative time offset for each
+        video feed in a session. The session is resolved from the first open
+        player with meeting and session metadata. Players are matched by their
+        content and channel IDs, so only feeds belonging to that session are
+        adjusted.
+
+        Returns
+        -------
+        dict
+            A summary of the players whose relative positions were adjusted.
+
+        """
+        players = self.players
+        source_player = next(
+            (
+                player
+                for player in players
+                if player.stream_data.get("meetingKey")
+                and player.stream_data.get("sessionKey")
+            ),
+            None,
+        )
+        if source_player is None:
+            return {
+                "data": {
+                    "synced_players": [],
+                    "message": "No players with session metadata are active.",
+                }
+            }
+
+        meeting_id = source_player.stream_data["meetingKey"]
+        session_id = source_player.stream_data["sessionKey"]
+        url = (
+            "https://api.multiviewer.dev/api/v1/meetings/"
+            f"{meeting_id}/sessions/{session_id}"
+        )
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
+        timing_data = response.json()
+        sync_offsets = timing_data.get("sync_offsets") or {}
+        offsets_by_channel = {
+            offset["streamData"]["channelId"]: float(offset["diff"])
+            for offset in sync_offsets.get("sync_offsets", [])
+            if offset.get("diff") is not None
+            and offset.get("streamData", {}).get("channelId") is not None
+        }
+
+        if not offsets_by_channel:
+            return {
+                "data": {
+                    "meeting_id": str(meeting_id),
+                    "session_id": str(session_id),
+                    "synced_players": [],
+                }
+            }
+
+        try:
+            session_start = float(timing_data["session_start"])
+            clock = self.f1_live_timing_clock["data"]["f1LiveTimingClock"]
+            live_timing_elapsed = (
+                float(clock["trackTime"]) - float(clock["liveTimingStartTime"])
+            ) / 1000
+        except (KeyError, TypeError, ValueError):
+            return {
+                "data": {
+                    "meeting_id": str(meeting_id),
+                    "session_id": str(session_id),
+                    "synced_players": [],
+                    "message": "Live timing position is unavailable.",
+                }
+            }
+
+        synced_players = []
+        for player in players:
+            offset = offsets_by_channel.get(player.channel_id)
+            if offset is None:
+                continue
+
+            position = session_start + live_timing_elapsed + offset
+            result = self.player_seek_to(player.id, absolute=position)
+            synced_players.append(
+                {
+                    "id": player.id,
+                    "title": player.title,
+                    "offset": offset,
+                    "position": position,
+                    "result": result,
+                }
+            )
+
+        return {
+            "data": {
+                "meeting_id": str(meeting_id),
+                "session_id": str(session_id),
+                "synced_players": synced_players,
+            }
+        }
+
+    def content_ids(self, meeting_key: str) -> dict:
+        """
+        Retrieves contentIds for all sessions in a meeting from the
+        MultiViewer meetings API.
+
+        To create a video player with `player_create`, get the meeting key
+        from `f1_live_timing_state` (SessionInfo.Meeting.Key), pass it to
+        this method to get the session contentIds, then pick the contentId
+        for the session you want to watch.
+
+        Parameters
+        ----------
+        meeting_key: str
+            Meeting key from f1_live_timing_state.
+
+        Returns
+        -------
+        dict
+            Dictionary mapping session titles to their F1 TV contentIds.
+
+        """
+        url = f"https://api.multiviewer.app/api/v1/meetings/{meeting_key}"
+        response = requests.get(url)
+        response.raise_for_status()
+
+        content_ids = {}
+        for session in response.json().get("sessions", []):
+            title = session.get("title")
+            content_id = session.get("f1tv_content_id")
+            if title and content_id:
+                content_ids[title] = content_id
+        return content_ids
 
 
 class Player(object):

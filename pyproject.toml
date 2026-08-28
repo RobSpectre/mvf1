@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mvf1"
-version = "2.0.1"
+version = "2.1.0"
 description = "A Python package and MCP server to control video players for MultiViewer, the best way to watch motorsports like Formula 1."
 readme = "README.rst"
 requires-python = ">=3.10"
@@ -24,9 +24,10 @@ classifiers = [
 ]
 
 dependencies = [
-    "click",
-    "sgqlc",
-    "fastmcp",
+    "click>=8.4.2",
+    "sgqlc>=18",
+    "fastmcp>=3.4.7",
+    "requests>=2.34.2",
 ]
 
 [project.urls]
