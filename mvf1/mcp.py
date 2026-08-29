@@ -560,14 +560,14 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
     @mcp.tool()
     def player_sync_to_live_timing() -> dict:
         """
-        Synchronizes open video players to the live-timing state for a
-        session represented by the first open player. Only players whose
-        content and channel IDs match a feed in that session are adjusted.
+        Synchronizes open video players directly to the current live-timing
+        position. Live timing is the synchronization source; no player is
+        selected as the leader.
 
         Returns
         -------
         dict
-            A summary of the players whose relative positions were adjusted.
+            A summary of the players synchronized to live timing.
 
         """
         return client.player_sync_to_live_timing()

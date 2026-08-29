@@ -1,4 +1,5 @@
 import json
+
 import pytest
 from unittest.mock import patch
 
@@ -146,45 +147,49 @@ async def test_player_sync_to_commentary(mock_urlopen):
 
 
 @pytest.mark.asyncio
+@patch('mvf1.mvf1.time.time', return_value=203.0)
 @patch('mvf1.mvf1.requests.get')
 @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
-async def test_player_sync_to_live_timing(mock_urlopen, mock_get):
+async def test_player_sync_to_live_timing(mock_urlopen, mock_get, mock_time):
     mock_get.return_value.json.return_value = {
         'session_start': '500.0',
-        'sync_offsets': {
-            'sync_offsets': [
-                {
-                    'diff': 1.5,
-                    'streamData': {
-                        'contentId': '1000010188',
-                        'channelId': 1025,
-                    },
-                },
-            ],
-        },
     }
     mock_urlopen.side_effect = [
         mock_players,
         {
             'data': {
                 'f1LiveTimingClock': {
-                    'trackTime': '200000',
-                    'liveTimingStartTime': '100000',
+                    'paused': False,
+                    'systemTime': '200000',
+                    'trackTime': '800000',
+                    'liveTimingStartTime': '0',
                 },
             },
         },
-        {'data': {'playerSeekTo': 601.5}},
+        {
+            'data': {
+                'f1LiveTimingState': {
+                    'SessionData': {
+                        'StatusSeries': [
+                            {
+                                'Utc': '1970-01-01T00:03:20.000Z',
+                                'SessionStatus': 'Started',
+                            },
+                        ],
+                    },
+                },
+            },
+        },
+        {'data': {'playerSeekTo': 1103.0}},
+        {'data': {'playerSeekTo': 1103.0}},
     ]
 
     async with Client(mcp) as client:
         response = await client.call_tool('player_sync_to_live_timing')
 
-    mock_get.assert_called_once_with(
-        'https://api.multiviewer.dev/api/v1/meetings/1006/sessions/5442',
-        timeout=10,
-    )
-    assert mock_urlopen.call_count == 3
+    assert mock_urlopen.call_count == 5
     assert 'synced_players' in str(response)
+    assert '1103.0' in str(response)
 
 
 @pytest.mark.asyncio

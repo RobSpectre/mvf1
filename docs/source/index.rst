@@ -114,7 +114,7 @@ Synchronize open players to live timing
     >>> from mvf1 import MultiViewerForF1
     >>> remote = MultiViewerForF1()
     >>> remote.player_sync_to_live_timing()
-    {'data': {'meeting_id': '1279', 'session_id': '11234', 'synced_players': [...]}}
+    {'data': {'meeting_id': '1279', 'session_id': '11234', 'position': 1632.4, 'synced_players': [...]}}
 
 
 Development

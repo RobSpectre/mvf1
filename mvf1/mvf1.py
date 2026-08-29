@@ -1,4 +1,6 @@
 import logging
+import time
+from datetime import datetime
 from typing import Optional
 
 import requests
@@ -614,22 +616,23 @@ class MultiViewerForF1(object):
         return {"data": "No player has commentary."}
 
     def player_sync_to_live_timing(self) -> dict:
-        """Synchronize open players to a session's live-timing offsets.
+        """Synchronize open players to the current live-timing position.
 
-        The MultiViewer sessions API provides a relative time offset for each
-        video feed in a session. The session is resolved from the first open
-        player with meeting and session metadata. Players are matched by their
-        content and channel IDs, so only feeds belonging to that session are
-        adjusted.
+        The session is resolved from the first open player with meeting and
+        session metadata. The sessions API's ``session_start`` offset, the
+        live-timing clock, and the first ``SessionStatus=Started`` event are
+        used to derive the video position, matching MultiViewer's replay
+        live-timing sync calculation. No video player is used as the
+        synchronization source.
 
         Returns
         -------
         dict
-            A summary of the players whose relative positions were adjusted.
+            A summary of the players synchronized to live timing.
 
         """
         players = self.players
-        source_player = next(
+        session_player = next(
             (
                 player
                 for player in players
@@ -638,7 +641,7 @@ class MultiViewerForF1(object):
             ),
             None,
         )
-        if source_player is None:
+        if session_player is None:
             return {
                 "data": {
                     "synced_players": [],
@@ -646,8 +649,8 @@ class MultiViewerForF1(object):
                 }
             }
 
-        meeting_id = source_player.stream_data["meetingKey"]
-        session_id = source_player.stream_data["sessionKey"]
+        meeting_id = session_player.stream_data["meetingKey"]
+        session_id = session_player.stream_data["sessionKey"]
         url = (
             "https://api.multiviewer.dev/api/v1/meetings/"
             f"{meeting_id}/sessions/{session_id}"
@@ -656,30 +659,31 @@ class MultiViewerForF1(object):
         response.raise_for_status()
 
         timing_data = response.json()
-        sync_offsets = timing_data.get("sync_offsets") or {}
-        offsets_by_channel = {
-            offset["streamData"]["channelId"]: float(offset["diff"])
-            for offset in sync_offsets.get("sync_offsets", [])
-            if offset.get("diff") is not None
-            and offset.get("streamData", {}).get("channelId") is not None
-        }
-
-        if not offsets_by_channel:
-            return {
-                "data": {
-                    "meeting_id": str(meeting_id),
-                    "session_id": str(session_id),
-                    "synced_players": [],
-                }
-            }
-
         try:
             session_start = float(timing_data["session_start"])
             clock = self.f1_live_timing_clock["data"]["f1LiveTimingClock"]
-            live_timing_elapsed = (
-                float(clock["trackTime"]) - float(clock["liveTimingStartTime"])
+            timing_position = float(clock["trackTime"])
+            if not clock["paused"]:
+                timing_position += (
+                    time.time() * 1000 - float(clock["systemTime"])
+                )
+
+            timing_state = self.f1_live_timing_state["data"][
+                "f1LiveTimingState"
+            ]
+            status_series = timing_state["SessionData"]["StatusSeries"]
+            session_started = next(
+                item
+                for item in status_series
+                if item.get("SessionStatus") == "Started" and item.get("Utc")
+            )
+            session_started_at = datetime.fromisoformat(
+                session_started["Utc"].replace("Z", "+00:00")
+            ).timestamp() * 1000
+            position = session_start + (
+                timing_position - session_started_at
             ) / 1000
-        except (KeyError, TypeError, ValueError):
+        except (KeyError, StopIteration, TypeError, ValueError):
             return {
                 "data": {
                     "meeting_id": str(meeting_id),
@@ -690,18 +694,32 @@ class MultiViewerForF1(object):
             }
 
         synced_players = []
+        skipped_live_players = []
         for player in players:
-            offset = offsets_by_channel.get(player.channel_id)
-            if offset is None:
+            if (
+                str(player.stream_data.get("meetingKey")) != str(meeting_id)
+                or str(player.stream_data.get("sessionKey")) != str(session_id)
+            ):
                 continue
 
-            position = session_start + live_timing_elapsed + offset
+            if player.state and player.state.get("live"):
+                skipped_live_players.append(
+                    {
+                        "id": player.id,
+                        "title": player.title,
+                        "reason": (
+                            "MultiViewer does not expose live-stream seeking "
+                            "via GraphQL."
+                        ),
+                    }
+                )
+                continue
+
             result = self.player_seek_to(player.id, absolute=position)
             synced_players.append(
                 {
                     "id": player.id,
                     "title": player.title,
-                    "offset": offset,
                     "position": position,
                     "result": result,
                 }
@@ -711,7 +729,10 @@ class MultiViewerForF1(object):
             "data": {
                 "meeting_id": str(meeting_id),
                 "session_id": str(session_id),
+                "position": position,
+                "session_started_at": session_started["Utc"],
                 "synced_players": synced_players,
+                "skipped_live_players": skipped_live_players,
             }
         }
 
