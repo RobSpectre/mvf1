@@ -44,11 +44,17 @@ async def test_f1_live_timing_state(mock_urlopen):
 @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
 async def test_fiawec_live_timing_state(mock_urlopen):
     async with Client(mcp) as client:
-        configure_mock_response(mock_urlopen,
-                                {'data': {'liveTimingState': None}})
+        payload = {'data': {'fiawecLiveTimingState': {
+            'positions': {}, 'session': {}, 'raceControl': {},
+        }}}
+        configure_mock_response(mock_urlopen, payload)
         response = await client.call_tool("fiawec_live_timing_state")
         mock_urlopen.assert_called_once()
-        assert "liveTimingState" in str(response)
+        assert response.data == payload
+        assert str(mock_urlopen.call_args.args[0]) == (
+            'query {\n  fiawecLiveTimingState {\n'
+            '    positions\n    session\n    raceControl\n  }\n}'
+        )
 
 
 @pytest.mark.asyncio

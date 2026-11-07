@@ -85,14 +85,21 @@ class TestMultiViewerForF1(TestCase):
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_fiawec_live_timing_state(self, mock_urlopen):
-        configure_mock_response(mock_urlopen,
-                                {'data': {'liveTimingState': None}})
+        payload = {'data': {'fiawecLiveTimingState': {
+            'positions': {}, 'session': {}, 'raceControl': {},
+        }}}
+        configure_mock_response(mock_urlopen, payload)
 
         response = self.remote.fiawec_live_timing_state
 
         mock_urlopen.assert_called_once()
 
-        self.assertIn("liveTimingState", str(response))
+        self.assertEqual(response, payload)
+        self.assertEqual(
+            str(mock_urlopen.call_args.args[0]),
+            'query {\n  fiawecLiveTimingState {\n'
+            '    positions\n    session\n    raceControl\n  }\n}',
+        )
 
     @patch('sgqlc.endpoint.http.HTTPEndpoint.__call__')
     def test_players(self, mock_urlopen):

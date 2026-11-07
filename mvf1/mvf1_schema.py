@@ -82,11 +82,12 @@ class SubscriptionType(sgqlc.types.Enum):
     Enumeration Choices:
 
     * `F1TV_ACCESS`None
+    * `F1TV_PREMIUM`None
     * `F1TV_PRO`None
     * `F1_ACCESS`None
     '''
     __schema__ = mvf1_schema
-    __choices__ = ('F1TV_ACCESS', 'F1TV_PRO', 'F1_ACCESS')
+    __choices__ = ('F1TV_ACCESS', 'F1TV_PREMIUM', 'F1TV_PRO', 'F1_ACCESS')
 
 
 
@@ -277,36 +278,15 @@ class F1LiveTimingState(sgqlc.types.Type):
 class FIAWECLiveTimingState(sgqlc.types.Type):
     '''FIA WEC live timing state'''
     __schema__ = mvf1_schema
-    __field_names__ = ('entries', 'referential', 'params', 'flags', 'best_sectors', 'race_control', 'laps', 'stints')
-    entries = sgqlc.types.Field(JSONObject, graphql_name='entries')
-    '''The race entries, which are the cars competing, including the
-    drivers of that car, and other information
-    '''
+    __field_names__ = ('positions', 'session', 'race_control')
+    positions = sgqlc.types.Field(JSONObject, graphql_name='positions')
+    '''Car positions'''
 
-    referential = sgqlc.types.Field(JSONObject, graphql_name='referential')
-    '''Referential data, which includes the entries, driver data,
-    category data, information about the sessions and the race/brands
-    '''
+    session = sgqlc.types.Field(JSONObject, graphql_name='session')
+    '''Session data'''
 
-    params = sgqlc.types.Field(JSONObject, graphql_name='params')
-    '''Information related to the current session, and track data such as
-    weather, flag state, etc.
-    '''
-
-    flags = sgqlc.types.Field(JSONObject, graphql_name='flags')
-    '''Any flags that are currently active'''
-
-    best_sectors = sgqlc.types.Field(JSONObject, graphql_name='best_sectors')
-    '''Best sectors overall'''
-
-    race_control = sgqlc.types.Field(JSONObject, graphql_name='race_control')
+    race_control = sgqlc.types.Field(JSONObject, graphql_name='raceControl')
     '''Race control messages'''
-
-    laps = sgqlc.types.Field(JSONObject, graphql_name='laps')
-    '''Lap-by-lap data for each car'''
-
-    stints = sgqlc.types.Field(JSONObject, graphql_name='stints')
-    '''Stint data for each car'''
 
 
 
@@ -432,7 +412,7 @@ class LiveTimingState(sgqlc.types.Type):
 
 class Mutation(sgqlc.types.Type):
     __schema__ = mvf1_schema
-    __field_names__ = ('version', 'player_create', 'player_delete', 'player_set_fullscreen', 'player_set_always_on_top', 'player_set_bounds', 'player_set_volume', 'player_set_paused', 'player_set_muted', 'player_seek_to', 'player_sync', 'player_set_speedometer_visibility', 'player_set_driver_header_mode')
+    __field_names__ = ('version', 'player_create', 'player_delete', 'player_set_fullscreen', 'player_set_always_on_top', 'player_set_bounds', 'player_set_volume', 'player_set_paused', 'player_set_muted', 'player_seek_to', 'player_sync', 'player_set_speedometer_visibility', 'player_set_driver_header_mode', 'stream_overlay_report_heights')
     version = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='version')
     '''Get the version of the app'''
 
@@ -516,7 +496,10 @@ class Mutation(sgqlc.types.Type):
     Arguments:
 
     * `id` (`ID!`): The browserWindowId of the player
-    * `volume` (`Float!`): The volume of the player (0-100)
+    * `volume` (`Float!`): The volume of the player (0-100). With
+      "Allow volume above 100%" on in settings, the F1 TV player (v2)
+      accepts up to 200, where anything above 100 is a boost. Values
+      out of range are clamped.
     '''
 
     player_set_paused = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='playerSetPaused', args=sgqlc.types.ArgDict((
@@ -604,6 +587,20 @@ class Mutation(sgqlc.types.Type):
     * `mode` (`DriverHeaderMode!`): The driver header mode
     '''
 
+    stream_overlay_report_heights = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='streamOverlayReportHeights', args=sgqlc.types.ArgDict((
+        ('slot_id', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='slotId', default=None)),
+        ('heights', sgqlc.types.Arg(sgqlc.types.non_null(JSONObject), graphql_name='heights', default=None)),
+))
+    )
+    '''Report how tall each banner's row is in a slot's overlay, in px by
+    banner id, so the slot knows whether the next banner fits
+
+    Arguments:
+
+    * `slot_id` (`String!`)None
+    * `heights` (`JSONObject!`)None
+    '''
+
 
 
 class Player(sgqlc.types.Type):
@@ -676,7 +673,9 @@ class PlayerState(sgqlc.types.Type):
     '''Whether the player is muted or not'''
 
     volume = sgqlc.types.Field(sgqlc.types.non_null(Float), graphql_name='volume')
-    '''The player's volume (0-100)'''
+    '''The player's volume (0-100, up to 200 on a boosted F1 TV player
+    (v2) with "Allow volume above 100%" on)
+    '''
 
     live = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='live')
     '''Whether the player is live or not'''
@@ -777,6 +776,30 @@ class Rectangle(sgqlc.types.Type):
 
 
 
+class StreamOverlaySlot(sgqlc.types.Type):
+    '''A banner slot of the stream overlay'''
+    __schema__ = mvf1_schema
+    __field_names__ = ('align', 'anchor', 'width', 'height', 'banners', 'upcoming')
+    align = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='align')
+    '''left, center or right'''
+
+    anchor = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='anchor')
+    '''bottom or top, the edge the stack starts at'''
+
+    width = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='width')
+    '''Browser source width in px'''
+
+    height = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='height')
+    '''Browser source height in px'''
+
+    banners = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(JSONObject))), graphql_name='banners')
+    '''Banners on air, oldest first'''
+
+    upcoming = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(JSONObject))), graphql_name='upcoming')
+    '''The next banners waiting, to be measured before they go on'''
+
+
+
 class Subscription(sgqlc.types.Type):
     '''A subscription'''
     __schema__ = mvf1_schema
@@ -798,6 +821,26 @@ class Subscription(sgqlc.types.Type):
     public-key.pub const publicKey = "---BEGIN PUBLIC KEY---\n...\n---
     END PUBLIC KEY---";  const verified = verify(token, publicKey, {
     algorithms: ["RS256"],   issuer: "multiviewer.app", }); ```
+    '''
+
+
+
+class SubscriptionRoot(sgqlc.types.Type):
+    __schema__ = mvf1_schema
+    __field_names__ = ('stream_overlay_slot',)
+    stream_overlay_slot = sgqlc.types.Field(StreamOverlaySlot, graphql_name='streamOverlaySlot', args=sgqlc.types.ArgDict((
+        ('slot_id', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='slotId', default=None)),
+))
+    )
+    '''A banner slot of the stream overlay: its size and what it shows.
+    Sent straight away and again whenever it changes. Null when stream
+    overlay banners are off or the slot doesn't exist. Only available
+    over WebSocket at /api/graphql.
+
+    Arguments:
+
+    * `slot_id` (`String!`): The slot's slug, the last part of its
+      browser source URL
     '''
 
 
@@ -824,5 +867,5 @@ class SystemInfo(sgqlc.types.Type):
 ########################################################################
 mvf1_schema.query_type = Query
 mvf1_schema.mutation_type = Mutation
-mvf1_schema.subscription_type = Subscription
+mvf1_schema.subscription_type = SubscriptionRoot
 

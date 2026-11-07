@@ -1,4 +1,4 @@
-click>=8.4.2
+click>=8.5.1
 sgqlc>=18
-fastmcp>=3.4.7
+fastmcp>=4.1.6
 requests>=2.34.2

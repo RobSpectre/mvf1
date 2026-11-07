@@ -162,6 +162,48 @@ session start, and each feed's signed offset to seek matching open players to
 the first open player's session.
 
 
+Content IDs and additional controls
+-----------------------------------
+
+The library can retrieve a content ID from an open player, or look up
+session content IDs using a meeting key:
+
+.. code-block:: python
+
+    from mvf1 import MultiViewerForF1
+
+    remote = MultiViewerForF1()
+    player = remote.players[0]  # Requires an open player.
+    content_id = player.content_id
+
+    state = remote.f1_live_timing_state["data"]["f1LiveTimingState"]
+    meeting_key = state["SessionInfo"]["Meeting"]["Key"]
+    session_ids = remote.content_ids(meeting_key)  # Session title -> content ID.
+
+``content_ids()`` uses MultiViewer's public meetings API and needs internet
+access. The live-timing example requires an active F1 timing session.
+MCP exposes ``content_ids(meeting_key)`` and ``player_get_content_id()``
+(the first open player's content ID).
+
+Additional controls are available in both Python and MCP:
+
+.. code-block:: python
+
+    subscriptions = remote.active_subscriptions["data"]["activeSubscriptions"]
+    remote.player_create(content_id, channel_id=player.channel_id)
+    player.set_always_on_top(True, level="FLOATING")
+    player.seek(relative=-0.25)
+    player.set_volume(37.5)
+
+The corresponding MCP tools are ``active_subscriptions``, ``player_create``,
+``player_set_always_on_top``, ``player_seek_to``, and ``player_set_volume``.
+The last three take a player ``id``. Supported levels are ``FLOATING``,
+``MAIN_MENU``, ``MODAL_PANEL``, ``NORMAL``, ``POP_UP_MENU``, ``SCREEN_SAVER``,
+``STATUS``, and ``TORN_OFF_MENU``. Omitting the level uses MultiViewer's
+default. Volume is normally 0-100, with up to 200 allowed for F1 TV v2 players
+when volume boost is enabled in MultiViewer.
+
+
 Development
 ================
 
@@ -189,6 +231,15 @@ The project uses `tox`_ for tests. Simply run from project root
 .. code-block:: bash
 
     $ tox
+
+GraphQL compatibility
+---------------------
+
+The generated schema was refreshed from MultiViewer 2.15.2. WEC live timing
+now returns ``positions``, ``session``, and ``raceControl``; applications
+using the previous WEC fields must migrate. See
+`the dependency and API audit <docs/source/api-audit.rst>`_ for the full
+comparison, remaining coverage gaps, and schema regeneration commands.
 
 
 Meta

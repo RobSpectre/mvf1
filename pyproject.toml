@@ -1,21 +1,20 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=84.2.1", "wheel>=0.48.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "mvf1"
-version = "2.1.1"
+version = "2.2.0"
 description = "A Python package and MCP server to control video players for MultiViewer, the best way to watch motorsports like Formula 1."
 readme = "README.rst"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
     { name = "Rob Spectre", email = "rob@brooklynhacker.com" },
 ]
 keywords = ["multiviewer", "formula1", "mcp", "video", "motorsports"]
 classifiers = [
     'Programming Language :: Python :: 3',
-    'License :: OSI Approved :: MIT License',
     'Operating System :: OS Independent',
     'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
@@ -24,9 +23,9 @@ classifiers = [
 ]
 
 dependencies = [
-    "click>=8.4.2",
+    "click>=8.5.1",
     "sgqlc>=18",
-    "fastmcp>=3.4.7",
+    "fastmcp>=4.1.6",
     "requests>=2.34.2",
 ]
 

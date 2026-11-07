@@ -215,9 +215,20 @@ class MultiViewerForF1(object):
         player_data = self.perform_operation(operation)
         return Player(player_data["data"]["player"])
 
+    @property
+    def active_subscriptions(self) -> dict:
+        """Return active subscriptions, including type, expiry and signature.
+
+        Returns the GraphQL response with subscriptions at
+        ``data.activeSubscriptions``.
+        """
+        operation = Operation(schema.Query)
+        operation.active_subscriptions()
+        return self.perform_operation(operation)
+
     def player_create(
         self,
-        content_id: int,
+        content_id: int | str,
         driver_tla: Optional[str] = None,
         driver_number: Optional[int] = None,
         stream_title: Optional[str] = None,
@@ -228,13 +239,14 @@ class MultiViewerForF1(object):
         fullscreen: Optional[bool] = False,
         always_on_top: Optional[bool] = False,
         maintain_aspect_ratio: Optional[bool] = True,
+        channel_id: Optional[int] = None,
     ) -> dict:
         """
         Creates a new player.
 
         Parameters
         ----------
-        content_id: int
+        content_id: int or str
             Content Id.
 
         driver_tla: str, optional
@@ -266,6 +278,10 @@ class MultiViewerForF1(object):
 
         maintain_aspect_ratio: bool, optional
             Maintain aspect ratio status.
+
+        channel_id: int, optional
+            F1 TV channel ID. Selects a feed directly as an alternative to
+            driver_tla, driver_number or stream_title.
 
         Returns
         -------
@@ -300,6 +316,9 @@ class MultiViewerForF1(object):
             always_on_top=always_on_top,
             maintain_aspect_ratio=maintain_aspect_ratio,
         )
+
+        if channel_id is not None:
+            player.channel_id = channel_id
 
         operation.player_create(input=player)
 
@@ -400,7 +419,7 @@ class MultiViewerForF1(object):
 
         return self.perform_operation(operation)
 
-    def player_set_volume(self, id: int, volume: int) -> dict:
+    def player_set_volume(self, id: int, volume: float) -> dict:
         """
         Set the volume of a player.
 
@@ -409,8 +428,9 @@ class MultiViewerForF1(object):
         id: int
             Id of player.
 
-        volume: int
-            Volume of player.
+        volume: float
+            Volume from 0 to 100, or up to 200 for F1 TV v2 players with
+            "Allow volume above 100%" enabled. Fractional values are accepted.
 
         Returns
         -------
@@ -552,7 +572,8 @@ class MultiViewerForF1(object):
                                          " or OBC_LIVE_TIMING.")
 
     def player_set_always_on_top(
-        self, id: int, always_on_top: Optional[bool] = None
+        self, id: int, always_on_top: Optional[bool] = None,
+        level: Optional[str] = None,
     ) -> dict:
         """
         Sets player on/off always on top.
@@ -565,6 +586,11 @@ class MultiViewerForF1(object):
         always_on_top: bool, optional
             Is the player always on top?
 
+        level: str, optional
+            Window level: FLOATING, MAIN_MENU, MODAL_PANEL, NORMAL,
+            POP_UP_MENU, SCREEN_SAVER, STATUS or TORN_OFF_MENU.
+            Omit to use MultiViewer's default level (FLOATING).
+
         Returns
         -------
         dict
@@ -572,7 +598,15 @@ class MultiViewerForF1(object):
 
         """
         operation = Operation(schema.Mutation)
-        operation.player_set_always_on_top(id=id, always_on_top=always_on_top) 
+        arguments = {"id": id, "always_on_top": always_on_top}
+        if level is not None:
+            if level not in schema.AlwaysOnTopLevel.__choices__:
+                raise MultiViewerForF1Error(
+                    "Invalid always-on-top level. Choose one of: "
+                    + ", ".join(schema.AlwaysOnTopLevel.__choices__)
+                )
+            arguments["level"] = level
+        operation.player_set_always_on_top(**arguments)
 
         return self.perform_operation(operation)
 
@@ -852,7 +886,7 @@ class Player(object):
         return self.remote.player_delete(self.id)
 
     def seek(
-        self, absolute: Optional[int] = None, relative: Optional[int] = None
+        self, absolute: Optional[float] = None, relative: Optional[float] = None
     ) -> dict:
         """
         Seeks this player's timestamp to an absolute or relative position.
@@ -904,14 +938,15 @@ class Player(object):
             self.id, x=x, y=y, width=width, height=height
         )
 
-    def set_volume(self, volume: int) -> dict:
+    def set_volume(self, volume: float) -> dict:
         """
         Set volume of this player.
 
         Parameters
         ----------
-        volume: int, optional
-            Desired volume of this player.
+        volume: float
+            Desired volume, including fractional values. Normally 0-100;
+            up to 200 for F1 TV v2 players with volume boost enabled.
 
         Returns
         -------
@@ -1018,7 +1053,9 @@ class Player(object):
 
         return self.remote.player_set_driver_header_mode(self.id, mode=mode)
 
-    def set_always_on_top(self, always_on_top: Optional[bool] = None) -> dict:
+    def set_always_on_top(
+        self, always_on_top: Optional[bool] = None, level: Optional[str] = None
+    ) -> dict:
         """
         Turns player on/off always on top.
 
@@ -1027,15 +1064,21 @@ class Player(object):
         always_on_top: bool, optional
             Is the player always on top?
 
+        level: str, optional
+            Window level: FLOATING, MAIN_MENU, MODAL_PANEL, NORMAL,
+            POP_UP_MENU, SCREEN_SAVER, STATUS or TORN_OFF_MENU.
+            Omit to use MultiViewer's default level (FLOATING).
+
         Returns
         -------
         dict
-            Server response fo this player's speedometer visibility.
+            Server response for this player's always-on-top state.
 
 
         """
-        return self.remote.player_set_always_on_top(self.id,
-                                                    always_on_top=always_on_top)
+        return self.remote.player_set_always_on_top(
+            self.id, always_on_top=always_on_top, level=level
+        )
 
     def sync(self) -> dict:
         """

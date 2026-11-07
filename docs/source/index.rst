@@ -10,6 +10,7 @@ A Python package and command line interface to control video players for
 
    MultiViewerForF1
    Player
+   api-audit
 
 
 Features

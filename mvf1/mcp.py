@@ -174,6 +174,14 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
         return client.version
 
     @mcp.tool()
+    def active_subscriptions() -> dict:
+        """Return active subscriptions with their type, expiry and signature.
+
+        Subscriptions are returned under data.activeSubscriptions.
+        """
+        return client.active_subscriptions
+
+    @mcp.tool()
     def player(id: int) -> str:
         """
         Returns the MultiViewer video player with specific id.
@@ -194,7 +202,7 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
 
     @mcp.tool()
     def player_create(
-        content_id,  # Accept both int and str
+        content_id: int | str,
         driver_tla: Optional[str] = None,
         driver_number: Optional[int] = None,
         stream_title: Optional[str] = None,
@@ -205,6 +213,7 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
         fullscreen: Optional[bool] = False,
         always_on_top: Optional[bool] = False,
         maintain_aspect_ratio: Optional[bool] = True,
+        channel_id: Optional[int] = None,
     ) -> dict:
         """
         Creates a new MultiViewer video player.
@@ -248,6 +257,10 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
         maintain_aspect_ratio: bool, optional
             Maintain aspect ratio status.
 
+        channel_id: int, optional
+            F1 TV channel ID. Selects a feed directly as an alternative to
+            driver_tla, driver_number or stream_title.
+
         Returns
         -------
         dict
@@ -274,7 +287,8 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
                                     height=height,
                                     fullscreen=fullscreen,
                                     always_on_top=always_on_top,
-                                    maintain_aspect_ratio=maintain_aspect_ratio)
+                                    maintain_aspect_ratio=maintain_aspect_ratio,
+                                    channel_id=channel_id)
 
     @mcp.tool()
     def player_delete(id: int) -> dict:
@@ -296,8 +310,8 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
 
     @mcp.tool()
     def player_seek_to(id: int,
-                       absolute: Optional[int] = None,
-                       relative: Optional[int] = None) -> dict:
+                       absolute: Optional[float] = None,
+                       relative: Optional[float] = None) -> dict:
         """
         Seeks to a specific position in time for a MultiViewer view player.
 
@@ -306,11 +320,12 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
         id: int
             Id of MultiViewer video player.
 
-        absolute: int, optional
-            Absolute position in the timeline.
+        absolute: float, optional
+            Absolute position in seconds, including fractional seconds.
 
-        relative: int, optional
-            Relative position from current..
+        relative: float, optional
+            Offset in seconds from the current position; may be negative
+            or fractional.
 
         Returns
         -------
@@ -363,7 +378,7 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
                                         height=height)
 
     @mcp.tool()
-    def player_set_volume(id: int, volume: int) -> dict:
+    def player_set_volume(id: int, volume: float) -> dict:
         """
         Set the volume of a MultiViewer video player.
 
@@ -372,8 +387,9 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
         id: int
             Id of MultiViewer video player.
 
-        volume: int
-            Volume of player from 1 to 100.
+        volume: float
+            Volume from 0 to 100, or up to 200 for F1 TV v2 players
+            with "Allow volume above 100%" enabled in MultiViewer.
 
         Returns
         -------
@@ -501,7 +517,8 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
 
     @mcp.tool()
     def player_set_always_on_top(
-        id: int, always_on_top: Optional[bool] = None
+        id: int, always_on_top: Optional[bool] = None,
+        level: Optional[str] = None,
     ) -> dict:
         """
         Sets a MultiPlayer video player on/off always on top.
@@ -514,6 +531,11 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
         always_on_top: bool, optional
             Is the player always on top?
 
+        level: str, optional
+            Window level: FLOATING, MAIN_MENU, MODAL_PANEL, NORMAL,
+            POP_UP_MENU, SCREEN_SAVER, STATUS or TORN_OFF_MENU.
+            Omit to use MultiViewer's default level (FLOATING).
+
         Returns
         -------
         dict
@@ -521,7 +543,8 @@ def create_mcp_server(url: str = "http://localhost:10101/api/graphql") -> FastMC
 
         """
         return client.player_set_always_on_top(id=id,
-                                               always_on_top=always_on_top)
+                                               always_on_top=always_on_top,
+                                               level=level)
 
     @mcp.tool()
     def player_sync(id: int) -> dict:
